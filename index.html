@@ -1,0 +1,50 @@
+<!--
+[INPUT]: 依赖 styles.css 的视觉层、app.js 的行为层和浏览器 HTML 表单能力
+[OUTPUT]: 对外提供极简 TodayCard 单页入口、中心牌堆、单一决策输入、可折叠高级选项和点击翻牌容器
+[POS]: 项目结构层，承接 personality-receipt 的单页 app 边界，只声明低输入成本骨架，不拥有随机图案、coverflow 和翻牌逻辑
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+-->
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TodayCard</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="brand">
+        <h1>TodayCard</h1>
+      </div>
+    </header>
+
+    <section class="stage" aria-label="TodayCard deck">
+      <div class="deck-shell" id="deckShell" tabindex="0" aria-label="Draggable TodayCard deck">
+        <div class="deck" id="deck"></div>
+        <div class="empty" id="emptyState" hidden>No cards</div>
+      </div>
+    </section>
+
+    <section class="control-panel" aria-label="TodayCard controls">
+      <div class="field">
+        <label for="decisionInput">今天决定什么？</label>
+        <input id="decisionInput" autocomplete="off" value="今天要不要推进这个想法" maxlength="96">
+      </div>
+
+      <button id="buildButton" type="button">抽一组卡</button>
+
+      <details class="advanced">
+        <summary>自定义选项</summary>
+        <div class="field">
+          <label for="optionsInput">一行一个选项，可留空</label>
+          <textarea id="optionsInput" spellcheck="false" placeholder="留空时自动生成 4 张牌"></textarea>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
