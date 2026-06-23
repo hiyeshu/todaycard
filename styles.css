@@ -16,7 +16,10 @@
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 [hidden] { display: none !important; }
 
 html,
@@ -63,10 +66,15 @@ button:active { transform: translateY(0); }
 
 button:focus-visible,
 input:focus-visible,
-textarea:focus-visible,
+textarea:focus-visible {
+  outline: 0;
+  box-shadow:
+    0 0 0 1px rgba(23, 23, 23, 0.16),
+    0 0 0 4px rgba(23, 23, 23, 0.06);
+}
+
 .deck-shell:focus-visible {
-  outline: 3px solid rgba(41, 93, 246, 0.18);
-  outline-offset: 3px;
+  outline: 0;
 }
 
 button.secondary,
