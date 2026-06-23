@@ -1,7 +1,7 @@
 <!--
 [INPUT]: 依赖 TodayCard 10x10 grid 规则
 [OUTPUT]: 对外提供可复制到 app assets/patterns.md 的 TodayCard 图案预设
-[POS]: todaycard-skill 的资产模板，不参与运行时，只作为新项目或图案重置的源材料
+[POS]: skills/todaycard/assets 的图案资产模板，不参与运行时，只作为新项目或图案重置的源材料
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
 # TodayCard Pattern Presets

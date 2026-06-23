@@ -1,5 +1,5 @@
 # assets/
-> L2 | 父级: /Users/yeshu/Desktop/cardtoday/CLAUDE.md
+> L2 | 父级: /Users/gaoding/Desktop/project-0622/todaycard/CLAUDE.md
 
 成员清单
 patterns.md: 10x10 宫格图案预设源，使用 `#` 表示填色、`.` 表示空格，供 app.js 的 GRID_PRESETS 同步实现。

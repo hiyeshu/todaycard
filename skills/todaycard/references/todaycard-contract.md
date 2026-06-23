@@ -1,7 +1,7 @@
 <!--
-[INPUT]: 依赖 TodayCard app 源码、assets/patterns.md 图案规则和 todaycard.app 发布约束
-[OUTPUT]: 对外提供 TodayCard 数据、视觉、交互、验证和部署契约
-[POS]: todaycard-skill 的细节参考，供需要修改实现或发布流程时读取
+[INPUT]: 依赖 TodayCard app 源码、assets/patterns.md 图案规则、todaycard-single.html 模板资产和 todaycard.app 发布约束
+[OUTPUT]: 对外提供 TodayCard 数据、视觉、交互、单文件模板、验证和部署契约
+[POS]: skills/todaycard 的细节参考，供需要修改实现或发布流程时读取
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
 # TodayCard Contract
@@ -48,6 +48,15 @@ Grid is always 10x10.
 - Vertical flipping is not allowed because it damages directional shapes.
 
 Use `assets/patterns.md` as the copyable preset source.
+
+## Single HTML
+
+Use `assets/todaycard-single.html` when the requested deliverable is a single copyable HTML file.
+
+- It must contain inline CSS and inline JavaScript.
+- It must not reference `styles.css`, `app.js`, or any external runtime.
+- It is a template asset, not the split-source truth.
+- When app behavior changes, update the split source first, then refresh this asset.
 
 ## Interaction
 
