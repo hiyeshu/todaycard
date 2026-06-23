@@ -532,6 +532,16 @@ async function rebuild() {
   }
 }
 
+function renderLocalDeck() {
+  const decision = els.decisionInput.value.trim() || '今天要不要推进这个想法';
+  const options = optionSuggestions(decision);
+  state.decision = decision;
+  state.cards = createCards(decision, options);
+  state.focus = clamp(state.focus, 0, Math.max(0, state.cards.length - 1));
+  state.revealed = new Set();
+  renderCards();
+}
+
 function moveFocus(delta) {
   if (!state.cards.length) return;
   state.focus = clamp(state.focus + delta, 0, state.cards.length - 1);
@@ -642,4 +652,4 @@ els.decisionInput.addEventListener('keydown', (event) => {
 });
 window.addEventListener('resize', layoutCards);
 
-rebuild();
+renderLocalDeck();

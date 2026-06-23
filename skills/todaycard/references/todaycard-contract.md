@@ -16,6 +16,8 @@ TodayCard is a one-page decision tool:
 4. User drags or scrolls the stack, chooses a card, then click/tap flips it.
 5. Revealed card shows the option as the answer.
 
+Initial page load must render local default cards only. Dify calls are allowed only after an explicit user action: clicking the build button or pressing Enter in the decision input.
+
 Default options should stay action-shaped:
 
 - `现在推进...`
