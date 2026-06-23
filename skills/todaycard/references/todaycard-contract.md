@@ -89,6 +89,7 @@ Use `assets/todaycard-single.html` when the requested deliverable is a single co
 - Drag beyond threshold: move focus, do not flip.
 - Keyboard: ArrowLeft/ArrowRight move focus, Enter/Space flip.
 - Flip by adding `.is-flipped` to the existing DOM node; do not rerender to fake animation.
+- On mobile WebKit, keep card faces separated with `translateZ` and explicit `-webkit-*` 3D/backface rules so the hidden face cannot leak mirrored text.
 
 ## Deployment
 
