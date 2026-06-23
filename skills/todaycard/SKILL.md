@@ -4,8 +4,8 @@ description: "Build, revise, package, or deploy TodayCard-style decision-card we
 ---
 
 <!--
-[INPUT]: 依赖 TodayCard 产品契约、静态 Web 文件、10x10 图案预设、单 HTML 模板资产和 Cloudflare Pages/GitHub 发布流程
-[OUTPUT]: 对外提供 TodayCard 构建、修改、单文件打包、验收和发布工作流
+[INPUT]: 依赖 TodayCard 产品契约、静态 Web 文件、Dify answers 代理、10x10 图案预设、单 HTML 模板资产和 Cloudflare Pages/GitHub 发布流程
+[OUTPUT]: 对外提供 TodayCard 构建、修改、Dify 接入、单文件打包、验收和发布工作流
 [POS]: skills/todaycard 的入口规则，负责指导 agent 维护 TodayCard 类项目，不持有具体 app 源码
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -22,6 +22,7 @@ Treat TodayCard as a tiny decision ritual, not a form builder.
 - Show the 10x10 pattern as the card back.
 - Reveal the answer only after click/tap flips the whole card.
 - Keep the implementation static unless the user explicitly asks for a backend.
+- Use `functions/api/cards.js` as the only Dify API caller; never put Dify keys in browser code.
 - For a single-file request, copy `assets/todaycard-single.html` first, then edit the copy.
 
 Read `references/todaycard-contract.md` before changing data shape, card semantics, interaction rules, deploy settings, or visual language.
@@ -30,11 +31,12 @@ Read `references/todaycard-contract.md` before changing data shape, card semanti
 
 1. Inspect the existing file boundary: `index.html`, `styles.css`, `app.js`, `assets/patterns.md`, `CLAUDE.md`.
 2. Preserve the data truth chain: decision/options -> seeded card data -> rendered card DOM.
-3. Keep randomness deterministic from `decision + option + index`.
-4. Use controlled palettes and preset 10x10 shapes; never let raw randomness create illegible grids.
-5. When the deliverable must be one HTML file, use `assets/todaycard-single.html` as the starting asset and keep it free of external `link` or `script src` dependencies.
-6. Implement mobile first, then verify desktop hover/click affordance.
-7. Validate with `node --check app.js` for split source, or by extracting/checking the inline script for single HTML, plus a 10x10 pattern check and a browser or HTTP smoke test when deployed.
+3. If Dify is enabled, keep it as an answer generator only: return `answers`, then let app.js seed cards locally.
+4. Keep randomness deterministic from `decision + option + index`.
+5. Use controlled palettes and preset 10x10 shapes; never let raw randomness create illegible grids.
+6. When the deliverable must be one HTML file, use `assets/todaycard-single.html` as the starting asset and keep it free of external `link` or `script src` dependencies.
+7. Implement mobile first, then verify desktop hover/click affordance.
+8. Validate with `node --check app.js`, Pages Function tests, or by extracting/checking the inline script for single HTML, plus a 10x10 pattern check and a browser or HTTP smoke test when deployed.
 
 ## Visual Rules
 

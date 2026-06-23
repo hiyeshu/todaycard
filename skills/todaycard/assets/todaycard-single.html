@@ -241,6 +241,8 @@ const DEFAULT_OPTIONS = [
 
 const AUTO_OPTION_COUNT = 4;
 const CARD_BRAND = 'Todaycard.app';
+const BUILD_LABEL = '抽一组卡';
+const BUILDING_LABEL = '抽牌中';
 const SIGNATURES = [
   'small proof',
   'soft bet',
@@ -381,6 +383,7 @@ const state = {
   focus: 0,
   revealed: new Set(),
   paletteShift: 0,
+  requestId: 0,
   drag: {
     active: false,
     startX: 0,
@@ -433,6 +436,13 @@ function normalizeOptions(raw) {
   return options.length ? options.slice(0, 8) : [];
 }
 
+function normalizeAnswerList(values) {
+  return values
+    .map((value) => String(value || '').trim())
+    .filter(Boolean)
+    .slice(0, AUTO_OPTION_COUNT);
+}
+
 function optionSuggestions(decision) {
   const clean = decision.trim() || '这件事';
   const object = clean.replace(/[?？。！!]/g, '').replace(/^今天要不要/, '').slice(0, 18) || '这件事';
@@ -442,6 +452,28 @@ function optionSuggestions(decision) {
     `问一个人再定`,
     `只试 30 分钟`
   ].slice(0, AUTO_OPTION_COUNT);
+}
+
+async function fetchGeneratedOptions(decision) {
+  const response = await fetch('/api/cards', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: decision })
+  });
+  if (!response.ok) throw new Error('Dify answers failed');
+  const data = await response.json();
+  return normalizeAnswerList(Array.isArray(data.answers) ? data.answers : []);
+}
+
+async function optionsFor(decision, customOptions) {
+  if (customOptions.length) return customOptions;
+  try {
+    const generated = await fetchGeneratedOptions(decision);
+    if (generated.length) return generated;
+  } catch {
+    /* Dify is optional; local suggestions keep the card ritual usable. */
+  }
+  return optionSuggestions(decision);
 }
 
 function cardSeed(decision, option, index) {
@@ -590,15 +622,28 @@ function layoutCards() {
   });
 }
 
-function rebuild() {
+function setBuilding(isBuilding) {
+  els.buildButton.disabled = isBuilding;
+  els.buildButton.textContent = isBuilding ? BUILDING_LABEL : BUILD_LABEL;
+}
+
+async function rebuild() {
   const decision = els.decisionInput.value.trim() || '今天要不要推进这个想法';
   const customOptions = normalizeOptions(els.optionsInput.value);
-  const options = customOptions.length ? customOptions : optionSuggestions(decision);
-  state.decision = decision;
-  state.cards = createCards(decision, options);
-  state.focus = clamp(state.focus, 0, Math.max(0, state.cards.length - 1));
-  state.revealed = new Set();
-  renderCards();
+  const requestId = state.requestId + 1;
+  state.requestId = requestId;
+  setBuilding(true);
+  try {
+    const options = await optionsFor(decision, customOptions);
+    if (requestId !== state.requestId) return;
+    state.decision = decision;
+    state.cards = createCards(decision, options);
+    state.focus = clamp(state.focus, 0, Math.max(0, state.cards.length - 1));
+    state.revealed = new Set();
+    renderCards();
+  } finally {
+    if (requestId === state.requestId) setBuilding(false);
+  }
 }
 
 function moveFocus(delta) {

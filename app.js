@@ -1,6 +1,6 @@
 /*
-[INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、assets/patterns.md 的 10x10 图案契约、用户输入 decision/options、当前日期和内置 seeded palette 规则
-[OUTPUT]: 对外提供单句决策输入、自动候选选项、带品牌/署名/月日元信息的 TodayCard 数据、10x10 牌背预设图案、移动优先牌堆和点击/触摸翻牌行为
+[INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、functions/api/cards.js 的 Dify 代理、assets/patterns.md 的 10x10 图案契约、用户输入 decision/options、当前日期和内置 seeded palette 规则
+[OUTPUT]: 对外提供单句决策输入、Dify/本地候选选项、带品牌/署名/月日元信息的 TodayCard 数据、10x10 牌背预设图案、移动优先牌堆和点击/触摸翻牌行为
 [POS]: 项目行为层，承接 TodayCard.app.v1 的最小数据真相源，驱动唯一网页但不持有视觉细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -127,6 +127,8 @@ const DEFAULT_OPTIONS = [
 
 const AUTO_OPTION_COUNT = 4;
 const CARD_BRAND = 'Todaycard.app';
+const BUILD_LABEL = '抽一组卡';
+const BUILDING_LABEL = '抽牌中';
 const SIGNATURES = [
   'small proof',
   'soft bet',
@@ -267,6 +269,7 @@ const state = {
   focus: 0,
   revealed: new Set(),
   paletteShift: 0,
+  requestId: 0,
   drag: {
     active: false,
     startX: 0,
@@ -319,6 +322,13 @@ function normalizeOptions(raw) {
   return options.length ? options.slice(0, 8) : [];
 }
 
+function normalizeAnswerList(values) {
+  return values
+    .map((value) => String(value || '').trim())
+    .filter(Boolean)
+    .slice(0, AUTO_OPTION_COUNT);
+}
+
 function optionSuggestions(decision) {
   const clean = decision.trim() || '这件事';
   const object = clean.replace(/[?？。！!]/g, '').replace(/^今天要不要/, '').slice(0, 18) || '这件事';
@@ -328,6 +338,28 @@ function optionSuggestions(decision) {
     `问一个人再定`,
     `只试 30 分钟`
   ].slice(0, AUTO_OPTION_COUNT);
+}
+
+async function fetchGeneratedOptions(decision) {
+  const response = await fetch('/api/cards', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: decision })
+  });
+  if (!response.ok) throw new Error('Dify answers failed');
+  const data = await response.json();
+  return normalizeAnswerList(Array.isArray(data.answers) ? data.answers : []);
+}
+
+async function optionsFor(decision, customOptions) {
+  if (customOptions.length) return customOptions;
+  try {
+    const generated = await fetchGeneratedOptions(decision);
+    if (generated.length) return generated;
+  } catch {
+    /* Dify is optional; local suggestions keep the card ritual usable. */
+  }
+  return optionSuggestions(decision);
 }
 
 function cardSeed(decision, option, index) {
@@ -476,15 +508,28 @@ function layoutCards() {
   });
 }
 
-function rebuild() {
+function setBuilding(isBuilding) {
+  els.buildButton.disabled = isBuilding;
+  els.buildButton.textContent = isBuilding ? BUILDING_LABEL : BUILD_LABEL;
+}
+
+async function rebuild() {
   const decision = els.decisionInput.value.trim() || '今天要不要推进这个想法';
   const customOptions = normalizeOptions(els.optionsInput.value);
-  const options = customOptions.length ? customOptions : optionSuggestions(decision);
-  state.decision = decision;
-  state.cards = createCards(decision, options);
-  state.focus = clamp(state.focus, 0, Math.max(0, state.cards.length - 1));
-  state.revealed = new Set();
-  renderCards();
+  const requestId = state.requestId + 1;
+  state.requestId = requestId;
+  setBuilding(true);
+  try {
+    const options = await optionsFor(decision, customOptions);
+    if (requestId !== state.requestId) return;
+    state.decision = decision;
+    state.cards = createCards(decision, options);
+    state.focus = clamp(state.focus, 0, Math.max(0, state.cards.length - 1));
+    state.revealed = new Set();
+    renderCards();
+  } finally {
+    if (requestId === state.requestId) setBuilding(false);
+  }
 }
 
 function moveFocus(delta) {

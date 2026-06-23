@@ -1,5 +1,6 @@
-# [INPUT]: 依赖 package.json 的 dist 构建输出
-# [OUTPUT]: 对 git 提供不追踪 dist 产物的忽略规则
-# [POS]: 项目根配置，保护源码仓库不混入 Cloudflare Pages 输出目录
+# [INPUT]: 依赖 package.json 的 dist 构建输出和 Wrangler 的本地缓存目录
+# [OUTPUT]: 对 git 提供不追踪 dist 产物与 .wrangler 账号缓存的忽略规则
+# [POS]: 项目根配置，保护源码仓库不混入 Cloudflare Pages 输出与本地工具状态
 # [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 dist/
+.wrangler/
