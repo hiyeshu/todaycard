@@ -1,11 +1,11 @@
 ---
 name: todaycard
-description: "Build, revise, package, or deploy TodayCard-style decision-card web apps: minimal mobile-first single-page or single-HTML tools where a user enters one decision, options are auto-generated or provided, cards use seeded colors and 10x10 preset backs, and click/tap flips to the answer. Use when working on TodayCard, todaycard.app, stampstack-inspired cards, option-drawing cards, decision decks, single-file HTML card templates, or the hiyeshu/todaycard repo."
+description: "Build, revise, package, or deploy TodayCard-style decision-card web apps: minimal mobile-first single-page or single-HTML tools where a user enters one decision, options are auto-generated, cards use seeded colors and 10x10 preset backs, the deck deals in like a game, and click/tap flips to the answer. Use when working on TodayCard, todaycard.app, stampstack-inspired cards, option-drawing cards, decision decks, single-file HTML card templates, or the hiyeshu/todaycard repo."
 ---
 
 <!--
-[INPUT]: 依赖 TodayCard 产品契约、静态 Web 文件、Dify answers 代理、10x10 图案预设、单 HTML 模板资产和 Cloudflare Pages/GitHub 发布流程
-[OUTPUT]: 对外提供 TodayCard 构建、修改、Dify 接入、单文件打包、验收和发布工作流
+[INPUT]: 依赖 TodayCard 产品契约、静态 Web 文件、Web Audio 声音层、Dify answers 代理、10x10 图案预设、单 HTML 模板资产和 Cloudflare Pages/GitHub 发布流程
+[OUTPUT]: 对外提供 TodayCard 构建、修改、Dify 接入、声音仪式、单文件打包、验收和发布工作流
 [POS]: skills/todaycard 的入口规则，负责指导 agent 维护 TodayCard 类项目，不持有具体 app 源码
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -16,11 +16,13 @@ description: "Build, revise, package, or deploy TodayCard-style decision-card we
 Treat TodayCard as a tiny decision ritual, not a form builder.
 
 - Ask for one decision by default.
-- Auto-generate 4 options when the user does not provide options.
-- Hide custom options behind an advanced affordance.
+- Auto-generate 4 options from Dify or local logic.
+- Do not expose custom options unless the user explicitly reopens that product direction.
 - Show a draggable card stack first; do not make a landing page.
+- Make drawing feel like a small game ritual: draw action, staggered dealing, then flip reveal.
 - Show the 10x10 pattern as the card back.
 - Reveal the answer only after click/tap flips the whole card.
+- Keep draw/deal/flip sounds in the Web Audio layer, not in card data.
 - Keep the implementation static unless the user explicitly asks for a backend.
 - Use `functions/api/cards.js` as the only Dify API caller; never put Dify keys in browser code.
 - For a single-file request, copy `assets/todaycard-single.html` first, then edit the copy.
@@ -31,22 +33,22 @@ Read `references/todaycard-contract.md` before changing data shape, card semanti
 
 ## Build Workflow
 
-1. Inspect the existing file boundary: `index.html`, `styles.css`, `app.js`, `assets/patterns.md`, `CLAUDE.md`.
+1. Inspect the existing file boundary: `index.html`, `styles.css`, `data.js`, `audio.js`, `app.js`, `assets/patterns.md`, `CLAUDE.md`.
 2. Preserve the data truth chain: decision/options -> seeded card data -> rendered card DOM.
 3. If Dify is enabled, keep it as an answer generator only: return `answers`, then let app.js seed cards locally.
 4. Keep randomness deterministic from `decision + option + index`.
-5. Use controlled palettes and preset 10x10 shapes; never let raw randomness create illegible grids.
-6. After changing `index.html`, `styles.css`, or `app.js`, mirror the relevant HTML/CSS/JS into `assets/todaycard-single.html` before verification.
+5. Use controlled high-saturation candy palettes and concrete cute 10x10 shapes; never let raw randomness create dirty low-lightness colors, illegible grids, abstract presets, or duplicate hue families within one draw.
+6. After changing `index.html`, `styles.css`, `data.js`, `audio.js`, or `app.js`, mirror the relevant HTML/CSS/JS into `assets/todaycard-single.html` before verification.
 7. When the deliverable must be one HTML file, use `assets/todaycard-single.html` as the starting asset and keep it free of external `link` or `script src` dependencies.
 8. Implement mobile first, then verify desktop hover/click affordance.
-9. Validate with `node --check app.js`, Pages Function tests, or by extracting/checking the inline script for single HTML, plus a 10x10 pattern check and a browser or HTTP smoke test when deployed.
+9. Validate with `node --check data.js`, `node --check audio.js`, `node --check app.js`, Pages Function tests, or by extracting/checking the inline scripts for single HTML, plus a 10x10 pattern check and a browser or HTTP smoke test when deployed.
 
 ## Visual Rules
 
-- Use a minimal white interface with the card stack as the primary screen.
-- Keep controls below the deck and sparse.
+- Use a minimal white interface with subtle gray grid lines and the card stack as the primary screen.
+- Keep controls below the deck and sparse; put a compact textless round game-like draw button at the right edge of the decision input.
 - Avoid explanatory in-app copy and helper buttons for actions that direct manipulation can handle.
-- Card backs may use brand, id, seeded signature, and `MM/DD` date.
+- Card backs may use brand, id, fixed `Choice A-D` labels, and `MM/DD` date.
 - Card fronts carry the revealed answer.
 - Do not add perforation dots to edges; rely on rounded card geometry, border, shadow, and paper texture.
 

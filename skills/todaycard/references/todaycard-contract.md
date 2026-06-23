@@ -1,6 +1,6 @@
 <!--
-[INPUT]: 依赖 TodayCard app 源码、functions/api/cards.js Dify 代理、assets/patterns.md 图案规则、todaycard-single.html 模板资产和 todaycard.app 发布约束
-[OUTPUT]: 对外提供 TodayCard 数据、Dify answers、视觉、交互、单文件模板、验证和部署契约
+[INPUT]: 依赖 TodayCard app 源码、audio.js 声音层、functions/api/cards.js Dify 代理、assets/patterns.md 图案规则、todaycard-single.html 模板资产和 todaycard.app 发布约束
+[OUTPUT]: 对外提供 TodayCard 数据、Dify answers、视觉、交互、声音、单文件模板、验证和部署契约
 [POS]: skills/todaycard 的细节参考，供需要修改实现或发布流程时读取
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -11,10 +11,11 @@
 TodayCard is a one-page decision tool:
 
 1. User enters one decision.
-2. App uses provided options or auto-generates four options.
+2. App auto-generates four action-shaped options from Dify or local logic.
 3. Each option becomes one card.
-4. User drags or scrolls the stack, chooses a card, then click/tap flips it.
-5. Revealed card shows the option as the answer.
+4. Clicking the draw button starts the draw sound, builds cards, and deals them into the coverflow one by one.
+5. User drags or scrolls the stack, chooses a card, then click/tap flips it.
+6. Revealed card shows the option as the answer with a Hero Moment sound.
 
 Initial page load must render local default cards only. Dify calls are allowed only after an explicit user action: clicking the build button or pressing Enter in the decision input.
 
@@ -34,13 +35,23 @@ Card data owns:
 - `id`: stable `TC.xxxxx`
 - `index`
 - `option`
-- `signature`
+- `choiceLabel`: fixed `Choice A-D`
 - `date`: `MM/DD`
 - `seed`
 - `paletteIndex`
 - `grid`
 
 Seed source is `decision + option + index`. Random-looking output must be reproducible for the same input.
+
+## Palette
+
+`data.js` owns the palette pool.
+
+- Palettes should stay youthful, cute, high-saturation candy colors: clean enough to feel light, with mark/frame colors boosted roughly 20% beyond the previous vivid palette while the white paper face keeps the interface calm.
+- Low-lightness, dirty, muddy, bronze, clay, or grayish colors do not belong in the palette.
+- Each palette entry must declare a `family`.
+- One draw must not reuse the same palette family across cards.
+- Assign colors by shuffling palette families from a deck seed, then taking one palette from each selected family.
 
 ## Dify
 
@@ -67,17 +78,24 @@ Grid is always 10x10.
 
 - Presets use `#` for filled cells and `.` for empty cells.
 - Presets must stay readable at card size.
+- Presets must be concrete cute symbols such as heart, smile, star, question, arrow, flower, moon, clover, ribbon, crown, gift, music, sun, lollipop, balloon, and check.
+- Abstract geometry does not belong in `GRID_PRESETS`.
 - Horizontal mirroring is allowed.
 - Vertical flipping is not allowed because it damages directional shapes.
+- The default face must keep the original 10x10 grid: `#` cells are solid color blocks and `.` cells are pale visible cells.
+- The answer face must reuse the same `card.grid`, but render only filled `#` cells as solid color blocks; empty `.` cells are layout space.
+- The answer face must reserve a two-line answer text area so short and long answers keep the same visual weight.
 
 Use `assets/patterns.md` as the copyable preset source.
+
+`data.js` `GRID_PRESETS` must stay in sync with `assets/patterns.md`.
 
 ## Single HTML
 
 Use `assets/todaycard-single.html` when the requested deliverable is a single copyable HTML file.
 
 - It must contain inline CSS and inline JavaScript.
-- It must not reference `styles.css`, `app.js`, or any external runtime.
+- It must not reference `styles.css`, `audio.js`, `app.js`, or any external runtime.
 - It is a template asset, not the split-source truth.
 - When page structure, visual rules, interaction, card data, default copy, or frontend API boundaries change, update the split source first, then refresh this asset in the same change.
 - If the split source and this single HTML asset cannot express the same behavior cleanly, stop and ask before choosing a compromise.
@@ -85,12 +103,25 @@ Use `assets/todaycard-single.html` when the requested deliverable is a single co
 ## Interaction
 
 - Pointer flow is the click/tap truth source.
+- Draw button starts the card ritual: play draw-start sound, request/generate answers, render new cards, then deal all cards with a fixed stagger.
+- During dealing, card drag and flip are disabled.
+- Dealing animation must use the `.deal-motion` wrapper; do not animate the outer `.card` coverflow transform.
 - Click a card: focus it and flip it.
 - Click empty deck: flip focused card.
 - Drag beyond threshold: move focus, do not flip.
 - Keyboard: ArrowLeft/ArrowRight move focus, Enter/Space flip.
 - Flip by adding `.is-flipped` to the existing DOM node; do not rerender to fake animation.
 - On mobile WebKit, keep card faces separated with `translateZ` and explicit `-webkit-*` 3D/backface rules so the hidden face cannot leak mirrored text.
+
+## Sound
+
+`audio.js` owns all Web Audio synthesis.
+
+- Draw start: short 8-bit charge.
+- Deal card: paper snap plus arcade tick, one per card.
+- Flip reveal: Hero Moment arpeggio plus sparkle tail.
+
+`app.js` may trigger sound events, but sound must not enter card data, seeds, Dify payloads, or render HTML.
 
 ## Deployment
 
@@ -100,6 +131,9 @@ Use `npm run build` to copy only these files into `dist/`:
 
 - `index.html`
 - `styles.css`
+- `data.js`
+- `audio.js`
 - `app.js`
+- `assets/todaycard.svg`
 
 Cloudflare Pages should publish `dist`.

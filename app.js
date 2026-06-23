@@ -1,267 +1,51 @@
 /*
-[INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、functions/api/cards.js 的 Dify 代理、assets/patterns.md 的 10x10 图案契约、用户输入 decision/options、当前日期和内置 seeded palette 规则
-[OUTPUT]: 对外提供单句决策输入、Dify/本地候选选项、带品牌/署名/月日元信息的 TodayCard 数据、10x10 牌背预设图案、移动优先牌堆和点击/触摸翻牌行为
+[INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、data.js 的 seeded palette、选项编号与图案数据、audio.js 的抽卡仪式音效、functions/api/cards.js 的 Dify 代理、浏览器语言、用户输入 decision 和当前日期
+[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、视口约束移动优先牌堆、逐张发牌动效、点击/触摸翻牌行为和音效事件
 [POS]: 项目行为层，承接 TodayCard.app.v1 的最小数据真相源，驱动唯一网页但不持有视觉细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
 /* ------------------------------
    数据层: 稳定 seed, 不信裸随机
 ------------------------------ */
-const PALETTES = [
-  {
-    name: 'meridian',
-    bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#00c9a7',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#00c9a7'
-  },
-  {
-    name: 'verdant',
-    bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#5cd500',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#5cd500'
-  },
-  {
-    name: 'aurora',
-    bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#c6a0fd',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#c6a0fd'
-  },
-  {
-    name: 'tidewater',
-    bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#85e8d8',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#85e8d8'
-  },
-  {
-    name: 'lumen',
-    bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#295df6',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#295df6'
-  },
-  {
-    name: 'cinder',
-    bg: '#ffffff',
-    cell: '#f4f0ee',
-    mark: '#ff5f1f',
-    text: '#5c514d',
-    muted: '#a79b96',
-    frame: '#ff5f1f'
-  },
-  {
-    name: 'rose',
-    bg: '#ffffff',
-    cell: '#f6eff3',
-    mark: '#e31b82',
-    text: '#5c4f56',
-    muted: '#ad9aa4',
-    frame: '#e31b82'
-  },
-  {
-    name: 'signal',
-    bg: '#ffffff',
-    cell: '#f7f2e3',
-    mark: '#ffc400',
-    text: '#5c563f',
-    muted: '#a79f82',
-    frame: '#ffc400'
-  },
-  {
-    name: 'ember',
-    bg: '#ffffff',
-    cell: '#f7eeee',
-    mark: '#e11937',
-    text: '#5c4d50',
-    muted: '#a9969a',
-    frame: '#e11937'
-  },
-  {
-    name: 'plum',
-    bg: '#ffffff',
-    cell: '#f1edf7',
-    mark: '#6f35e8',
-    text: '#514b5c',
-    muted: '#9c94ad',
-    frame: '#6f35e8'
-  },
-  {
-    name: 'moss',
-    bg: '#ffffff',
-    cell: '#edf5ed',
-    mark: '#159a5b',
-    text: '#47584f',
-    muted: '#879d90',
-    frame: '#159a5b'
-  },
-  {
-    name: 'ink',
-    bg: '#ffffff',
-    cell: '#eeeeef',
-    mark: '#171717',
-    text: '#555555',
-    muted: '#9a9a9a',
-    frame: '#171717'
-  }
-];
-
-const DEFAULT_OPTIONS = [
-  '现在做一个最小版本',
-  '先不做，保留精力',
-  '问一个可信的人',
-  '只投入 30 分钟试验'
-];
-
+const { PALETTES, OPTION_LABELS, GRID_PRESETS } = window.TodayCardData;
 const AUTO_OPTION_COUNT = 4;
 const CARD_BRAND = 'Todaycard.app';
-const BUILD_LABEL = '抽一组卡';
-const BUILDING_LABEL = '抽牌中';
-const SIGNATURES = [
-  'small proof',
-  'soft bet',
-  'quiet yes',
-  'try today',
-  'ask once',
-  'light move',
-  'one step',
-  'clear no'
-];
-
-const GRID_PRESETS = [
-  {
-    name: 'spark',
-    rows: [
-      '....##....',
-      '....##....',
-      '...####...',
-      '..######..',
-      '##########',
-      '##########',
-      '..######..',
-      '...####...',
-      '....##....',
-      '....##....'
+const DEAL_STAGGER_MS = 110;
+const DEAL_SETTLE_MS = 620;
+const MESSAGES = {
+  zh: {
+    lang: 'zh-CN',
+    decisionPlaceholder: '今天想决定什么？',
+    decisionAria: '今天想决定什么？',
+    fallbackDecision: '今天的决定',
+    drawButton: '抽卡',
+    buildingButton: '发牌中',
+    emptyState: '暂无卡片',
+    answerLabel: '答案',
+    defaultOptions: [
+      '现在做一个最小版本',
+      '先不做，保留精力',
+      '问一个可信的人',
+      '只投入 30 分钟试验'
     ]
   },
-  {
-    name: 'heart',
-    rows: [
-      '.##....##.',
-      '####..####',
-      '##########',
-      '##########',
-      '.########.',
-      '..######..',
-      '...####...',
-      '....##....',
-      '....##....',
-      '..........',
-    ]
-  },
-  {
-    name: 'question',
-    rows: [
-      '..######..',
-      '.##....##.',
-      '......##..',
-      '.....##...',
-      '....##....',
-      '...##.....',
-      '...##.....',
-      '..........',
-      '...##.....',
-      '...##.....'
-    ]
-  },
-  {
-    name: 'arrow',
-    rows: [
-      '.....#....',
-      '....##....',
-      '...###....',
-      '..####....',
-      '.######...',
-      '########..',
-      '.######...',
-      '..####....',
-      '...###....',
-      '....##....'
-    ]
-  },
-  {
-    name: 'bloom',
-    rows: [
-      '...####...',
-      '..######..',
-      '.##.##.##.',
-      '###.##.###',
-      '##########',
-      '##########',
-      '###.##.###',
-      '.##.##.##.',
-      '..######..',
-      '...####...'
-    ]
-  },
-  {
-    name: 'orbit',
-    rows: [
-      '..######..',
-      '.##....##.',
-      '##..##..##',
-      '#..####..#',
-      '#.######.#',
-      '#.######.#',
-      '#..####..#',
-      '##..##..##',
-      '.##....##.',
-      '..######..'
-    ]
-  },
-  {
-    name: 'gate',
-    rows: [
-      '##########',
-      '#........#',
-      '#.######.#',
-      '#.#....#.#',
-      '#.#.##.#.#',
-      '#.#.##.#.#',
-      '#.#....#.#',
-      '#.######.#',
-      '#........#',
-      '##########'
-    ]
-  },
-  {
-    name: 'wave',
-    rows: [
-      '##........',
-      '###.......',
-      '.###......',
-      '..###.....',
-      '...###....',
-      '....###...',
-      '.....###..',
-      '......###.',
-      '.......###',
-      '........##'
+  en: {
+    lang: 'en',
+    decisionPlaceholder: 'What do you want to decide today?',
+    decisionAria: 'What do you want to decide today?',
+    fallbackDecision: "today's decision",
+    drawButton: 'Draw',
+    buildingButton: 'Dealing',
+    emptyState: 'No cards',
+    answerLabel: 'Answer',
+    defaultOptions: [
+      'Make the smallest version now',
+      'Pause and save your energy',
+      'Ask one trusted person',
+      'Try it for 30 minutes'
     ]
   }
-];
+};
 
 const state = {
   decision: '',
@@ -270,6 +54,8 @@ const state = {
   revealed: new Set(),
   paletteShift: 0,
   requestId: 0,
+  isDealing: false,
+  dealTimers: [],
   drag: {
     active: false,
     startX: 0,
@@ -282,12 +68,47 @@ const state = {
 
 const els = {
   decisionInput: document.getElementById('decisionInput'),
-  optionsInput: document.getElementById('optionsInput'),
   buildButton: document.getElementById('buildButton'),
+  buildText: document.querySelector('#buildButton .button-text'),
   deckShell: document.getElementById('deckShell'),
   deck: document.getElementById('deck'),
   emptyState: document.getElementById('emptyState')
 };
+
+const localeKey = resolveLocale();
+const copy = MESSAGES[localeKey];
+
+function resolveLocale() {
+  const language = `${document.documentElement.lang || navigator.language || ''}`.toLowerCase();
+  return language.startsWith('zh') ? 'zh' : 'en';
+}
+
+function t(key) {
+  return copy[key] || MESSAGES.en[key] || key;
+}
+
+function currentDecision() {
+  return els.decisionInput.value.trim() || t('fallbackDecision');
+}
+
+function applyI18n() {
+  document.documentElement.lang = t('lang');
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    node.textContent = t(node.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach((node) => {
+    node.setAttribute('aria-label', t(node.dataset.i18nAriaLabel));
+  });
+  els.decisionInput.placeholder = t('decisionPlaceholder');
+  els.decisionInput.setAttribute('aria-label', t('decisionAria'));
+  if (els.buildText) els.buildText.textContent = t('drawButton');
+}
+
+function playSound(name, detail) {
+  const audio = window.TodayCardAudio;
+  if (!audio || typeof audio[name] !== 'function') return;
+  audio[name](detail);
+}
 
 function hashString(value) {
   let hash = 2166136261;
@@ -313,15 +134,6 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
-function normalizeOptions(raw) {
-  const options = raw
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  return options.length ? options.slice(0, 8) : [];
-}
-
 function normalizeAnswerList(values) {
   return values
     .map((value) => String(value || '').trim())
@@ -329,9 +141,27 @@ function normalizeAnswerList(values) {
     .slice(0, AUTO_OPTION_COUNT);
 }
 
+function decisionObject(decision) {
+  return decision
+    .replace(/[?？。！!]/g, '')
+    .replace(/^今天(要不要|想不想|想)?/, '')
+    .replace(/^(推进|推动|做|开始|去|试试)/, '')
+    .trim();
+}
+
 function optionSuggestions(decision) {
   const clean = decision.trim() || '这件事';
-  const object = clean.replace(/[?？。！!]/g, '').replace(/^今天要不要/, '').slice(0, 18) || '这件事';
+  if (clean === t('fallbackDecision')) return t('defaultOptions').slice(0, AUTO_OPTION_COUNT);
+  if (localeKey === 'en') {
+    const object = clean.replace(/[?？。！!]/g, '').slice(0, 28) || t('fallbackDecision');
+    return [
+      `Move ${object} forward now`,
+      'Pause for now',
+      'Ask one person first',
+      'Try it for 30 minutes'
+    ].slice(0, AUTO_OPTION_COUNT);
+  }
+  const object = decisionObject(clean).slice(0, 18) || '这件事';
   return [
     `现在推进${object}`,
     `暂时不做`,
@@ -351,8 +181,7 @@ async function fetchGeneratedOptions(decision) {
   return normalizeAnswerList(Array.isArray(data.answers) ? data.answers : []);
 }
 
-async function optionsFor(decision, customOptions) {
-  if (customOptions.length) return customOptions;
+async function optionsFor(decision) {
   try {
     const generated = await fetchGeneratedOptions(decision);
     if (generated.length) return generated;
@@ -366,6 +195,32 @@ function cardSeed(decision, option, index) {
   return hashString(`${decision}\n${option}\n${index + 1}`);
 }
 
+function shuffledIndexes(count, rng) {
+  const indexes = Array.from({ length: count }, (_, index) => index);
+  for (let index = indexes.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(rng() * (index + 1));
+    [indexes[index], indexes[swapIndex]] = [indexes[swapIndex], indexes[index]];
+  }
+  return indexes;
+}
+
+function uniquePaletteIndexes(decision, count) {
+  const rng = createRng(hashString(`${decision}\npalette-deck`));
+  const groups = new Map();
+  PALETTES.forEach((palette, index) => {
+    const family = palette.family || palette.name;
+    if (!groups.has(family)) groups.set(family, []);
+    groups.get(family).push(index);
+  });
+  const families = [...groups.keys()];
+  const familyOrder = shuffledIndexes(families.length, rng);
+  return Array.from({ length: count }, (_, index) => {
+    const family = families[familyOrder[index % familyOrder.length]];
+    const members = groups.get(family);
+    return members[Math.floor(rng() * members.length)];
+  });
+}
+
 function currentDateStamp() {
   const now = new Date();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -375,19 +230,17 @@ function currentDateStamp() {
 
 function createCards(decision, options) {
   const date = currentDateStamp();
+  const paletteIndexes = uniquePaletteIndexes(decision, options.length);
   return options.map((option, index) => {
     const seed = cardSeed(decision, option, index);
-    const rng = createRng(seed);
-    const paletteIndex = (Math.floor(rng() * PALETTES.length) + index * 3) % PALETTES.length;
-    const signature = SIGNATURES[Math.floor(rng() * SIGNATURES.length)];
     return {
       id: `TC.${String((seed % 100000)).padStart(5, '0')}`,
       index,
       option,
-      signature,
+      choiceLabel: OPTION_LABELS[index] || `Choice ${index + 1}`,
       date,
       seed,
-      paletteIndex,
+      paletteIndex: paletteIndexes[index],
       grid: createGrid(createRng(seed ^ 0x9E3779B9))
     };
   });
@@ -433,42 +286,70 @@ function gridHtml(grid) {
     .join('');
 }
 
+function solidSymbolHtml(grid) {
+  return grid
+    .map((row, rowIndex) => row
+      .map((on, columnIndex) => {
+        if (!on) return '';
+        return `<span class="symbol-cell" style="--row:${rowIndex + 1};--column:${columnIndex + 1};"></span>`;
+      })
+      .join(''))
+    .join('');
+}
+
 function cardHtml(card) {
   const flipped = state.revealed.has(card.index);
+  const answerSymbol = solidSymbolHtml(card.grid);
   return `
     <article class="card${flipped ? ' is-flipped' : ''}" data-index="${card.index}" aria-label="TodayCard ${card.index + 1}">
-      <div class="card-inner">
-        <div class="stamp-face card-back">
-          <div class="card-top">
-            <span class="card-title">${CARD_BRAND}</span>
-            <span class="card-id">${card.id}</span>
+      <div class="deal-motion">
+        <div class="card-inner">
+          <div class="stamp-face card-back">
+            <div class="card-top">
+              <span class="card-title">${CARD_BRAND}</span>
+              <span class="card-id">${card.id}</span>
+            </div>
+            <div class="grid" aria-hidden="true">${gridHtml(card.grid)}</div>
+            <div class="card-bottom">
+              <span class="card-choice-label">${escapeHtml(card.choiceLabel)}</span>
+              <span class="card-date">${card.date}</span>
+            </div>
           </div>
-          <div class="grid" aria-hidden="true">${gridHtml(card.grid)}</div>
-          <div class="card-bottom">
-            <span class="card-signature">${card.signature}</span>
-            <span class="card-date">${card.date}</span>
-          </div>
-        </div>
-        <div class="stamp-face card-front">
-          <div class="card-top">
-            <span class="card-title">${CARD_BRAND}</span>
-            <span class="card-id">${card.id}</span>
-          </div>
-          <div class="answer-mark" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </div>
-          <div class="answer-copy">
-            <span class="option-label">Answer</span>
-            <p class="answer-text">${escapeHtml(card.option)}</p>
-          </div>
-          <div class="card-bottom">
-            <span class="card-signature">${card.signature}</span>
-            <span class="card-date">${card.date}</span>
+          <div class="stamp-face card-front">
+            <div class="card-top">
+              <span class="card-title">${CARD_BRAND}</span>
+              <span class="card-id">${card.id}</span>
+            </div>
+            <div class="symbol-grid" aria-hidden="true">${answerSymbol}</div>
+            <div class="answer-copy">
+              <span class="option-label">${escapeHtml(t('answerLabel'))}</span>
+              <p class="answer-text">${escapeHtml(card.option)}</p>
+            </div>
+            <div class="card-bottom">
+              <span class="card-choice-label">${escapeHtml(card.choiceLabel)}</span>
+              <span class="card-date">${card.date}</span>
+            </div>
           </div>
         </div>
       </div>
     </article>
   `;
+}
+
+function clearDealTimers() {
+  state.dealTimers.forEach((timer) => window.clearTimeout(timer));
+  state.dealTimers = [];
+  state.isDealing = false;
+  els.deckShell.classList.remove('is-dealing');
+}
+
+function markDealingCard(node) {
+  const index = Number(node.dataset.index);
+  node.classList.add('is-dealing');
+  node.style.setProperty('--deal-delay', `${index * DEAL_STAGGER_MS}ms`);
+  node.addEventListener('animationend', () => {
+    node.classList.remove('is-dealing');
+  }, { once: true });
 }
 
 function escapeHtml(value) {
@@ -480,26 +361,31 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-function renderCards() {
+function renderCards(options = {}) {
   els.deck.innerHTML = state.cards.map(cardHtml).join('');
   els.emptyState.hidden = state.cards.length > 0;
-  els.deck.querySelectorAll('.card').forEach((node) => {
+  const cardNodes = [...els.deck.querySelectorAll('.card')];
+  cardNodes.forEach((node) => {
     const card = state.cards[Number(node.dataset.index)];
     setCardPalette(node, paletteFor(card));
   });
   layoutCards();
+  if (options.deal) cardNodes.forEach(markDealingCard);
 }
 
 function layoutCards() {
+  const shellWidth = els.deckShell.clientWidth || window.innerWidth;
   const dragOffset = state.drag.active ? state.drag.deltaX / 118 : 0;
-  const spread = window.innerWidth < 520 ? 190 : 250;
+  const compactSpread = clamp(shellWidth * 0.34, 112, 150);
+  const spread = shellWidth < 520 ? compactSpread : 250;
+  const yaw = shellWidth < 520 ? -24 : -30;
   els.deck.querySelectorAll('.card').forEach((node) => {
     const index = Number(node.dataset.index);
     const offset = index - state.focus + dragOffset;
     const distance = Math.abs(offset);
     node.style.setProperty('--x', `${offset * spread}px`);
     node.style.setProperty('--z', `${distance === 0 ? 60 : -distance * 48}px`);
-    node.style.setProperty('--ry', `${offset * -30}deg`);
+    node.style.setProperty('--ry', `${offset * yaw}deg`);
     node.style.setProperty('--rz', `${offset * 1.4}deg`);
     node.style.setProperty('--scale', `${Math.max(0.68, 1 - distance * 0.1)}`);
     node.style.setProperty('--opacity', `${distance > 3 ? 0.18 : Math.max(0.32, 1 - distance * 0.15)}`);
@@ -510,51 +396,85 @@ function layoutCards() {
 
 function setBuilding(isBuilding) {
   els.buildButton.disabled = isBuilding;
-  els.buildButton.textContent = isBuilding ? BUILDING_LABEL : BUILD_LABEL;
+  els.buildButton.classList.toggle('is-building', isBuilding);
+  els.buildButton.setAttribute('aria-busy', String(isBuilding));
+  els.buildButton.setAttribute('aria-label', isBuilding ? t('buildingButton') : t('drawButton'));
+  if (els.buildText) els.buildText.textContent = isBuilding ? t('buildingButton') : t('drawButton');
+}
+
+function finishDeal(requestId) {
+  if (requestId !== state.requestId) return;
+  state.dealTimers = [];
+  state.isDealing = false;
+  els.deckShell.classList.remove('is-dealing');
+  setBuilding(false);
+}
+
+function startDealSequence(requestId) {
+  clearDealTimers();
+  state.isDealing = true;
+  els.deckShell.classList.add('is-dealing');
+  renderCards({ deal: true });
+
+  state.cards.forEach((card) => {
+    const timer = window.setTimeout(() => {
+      if (requestId === state.requestId) playSound('playDealCard', { index: card.index });
+    }, card.index * DEAL_STAGGER_MS);
+    state.dealTimers.push(timer);
+  });
+
+  const total = Math.max(0, state.cards.length - 1) * DEAL_STAGGER_MS + DEAL_SETTLE_MS;
+  state.dealTimers.push(window.setTimeout(() => finishDeal(requestId), total));
 }
 
 async function rebuild() {
-  const decision = els.decisionInput.value.trim() || '今天要不要推进这个想法';
-  const customOptions = normalizeOptions(els.optionsInput.value);
+  if (els.buildButton.disabled) return;
+  const decision = currentDecision();
   const requestId = state.requestId + 1;
   state.requestId = requestId;
+  clearDealTimers();
   setBuilding(true);
+  playSound('playDrawStart');
+  let didStartDeal = false;
   try {
-    const options = await optionsFor(decision, customOptions);
+    const options = await optionsFor(decision);
     if (requestId !== state.requestId) return;
     state.decision = decision;
     state.cards = createCards(decision, options);
-    state.focus = clamp(state.focus, 0, Math.max(0, state.cards.length - 1));
+    state.focus = 0;
     state.revealed = new Set();
-    renderCards();
+    startDealSequence(requestId);
+    didStartDeal = true;
   } finally {
-    if (requestId === state.requestId) setBuilding(false);
+    if (requestId === state.requestId && !didStartDeal) setBuilding(false);
   }
 }
 
 function renderLocalDeck() {
-  const decision = els.decisionInput.value.trim() || '今天要不要推进这个想法';
+  const decision = currentDecision();
   const options = optionSuggestions(decision);
   state.decision = decision;
   state.cards = createCards(decision, options);
-  state.focus = clamp(state.focus, 0, Math.max(0, state.cards.length - 1));
+  state.focus = 0;
   state.revealed = new Set();
   renderCards();
 }
 
 function moveFocus(delta) {
-  if (!state.cards.length) return;
+  if (!state.cards.length || state.isDealing) return;
   state.focus = clamp(state.focus + delta, 0, state.cards.length - 1);
   layoutCards();
 }
 
 function flipFocused() {
+  if (state.isDealing) return;
   const current = state.cards[state.focus];
   if (!current) return;
   flipCard(current.index);
 }
 
 function activateCard(index) {
+  if (state.isDealing) return;
   if (state.drag.moved) {
     state.drag.moved = false;
     return;
@@ -568,8 +488,9 @@ function activateCard(index) {
 
 function flipCard(index) {
   const card = state.cards[index];
-  if (!card || state.revealed.has(index)) return;
+  if (!card || state.isDealing || state.revealed.has(index)) return;
   state.revealed.add(index);
+  playSound('playFlipReveal');
   const node = els.deck.querySelector(`.card[data-index="${index}"]`);
   if (node) {
     node.classList.add('is-flipped');
@@ -577,6 +498,7 @@ function flipCard(index) {
 }
 
 function onPointerDown(event) {
+  if (state.isDealing) return;
   const cardNode = event.target.closest('.card');
   state.drag.active = true;
   state.drag.startX = event.clientX;
@@ -652,4 +574,5 @@ els.decisionInput.addEventListener('keydown', (event) => {
 });
 window.addEventListener('resize', layoutCards);
 
+applyI18n();
 renderLocalDeck();

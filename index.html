@@ -1,6 +1,6 @@
 <!--
-[INPUT]: 依赖 styles.css 的视觉层、app.js 的行为层和浏览器 HTML 表单能力
-[OUTPUT]: 对外提供极简 TodayCard 单页入口、中心牌堆、单一决策输入、可折叠高级选项和点击翻牌容器
+[INPUT]: 依赖 styles.css 的视觉层、data.js 的静态数据层、audio.js 的声音层、app.js 的 i18n 行为层、GitHub 源仓库链接和浏览器 HTML 表单能力
+[OUTPUT]: 对外提供极简 TodayCard 单页入口、SVG favicon、中心牌堆、圆框单一决策输入、右侧状态文字游戏抽卡按钮、低对比源仓库链接和点击翻牌容器
 [POS]: 项目结构层，承接 personality-receipt 的单页 app 边界，只声明低输入成本骨架，不拥有随机图案、coverflow 和翻牌逻辑
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -10,7 +10,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>TodayCard</title>
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="icon" type="image/svg+xml" href="./assets/todaycard.svg">
+  <link rel="stylesheet" href="./styles.css?v=20260624-mobile">
 </head>
 <body>
   <main class="app">
@@ -23,28 +24,28 @@
     <section class="stage" aria-label="TodayCard deck">
       <div class="deck-shell" id="deckShell" tabindex="0" aria-label="Draggable TodayCard deck">
         <div class="deck" id="deck"></div>
-        <div class="empty" id="emptyState" hidden>No cards</div>
+        <div class="empty" id="emptyState" data-i18n="emptyState" hidden>No cards</div>
       </div>
     </section>
 
     <section class="control-panel" aria-label="TodayCard controls">
       <div class="field">
-        <label for="decisionInput">今天决定什么？</label>
-        <input id="decisionInput" autocomplete="off" value="今天要不要推进这个想法" maxlength="96">
-      </div>
-
-      <button id="buildButton" type="button">抽一组卡</button>
-
-      <details class="advanced">
-        <summary>自定义选项</summary>
-        <div class="field">
-          <label for="optionsInput">一行一个选项，可留空</label>
-          <textarea id="optionsInput" spellcheck="false" placeholder="留空时自动生成 4 张牌"></textarea>
+        <div class="decision-row">
+          <input id="decisionInput" autocomplete="off" placeholder="今天想决定什么？" maxlength="96" aria-label="今天想决定什么？">
+          <button id="buildButton" class="draw-button" type="button" aria-label="抽卡" data-i18n-aria-label="drawButton">
+            <span class="button-text" data-i18n="drawButton">抽卡</span>
+          </button>
         </div>
-      </details>
+      </div>
     </section>
+
+    <footer class="source-footer" aria-label="TodayCard source">
+      <a class="source-link" href="https://github.com/hiyeshu/todaycard" target="_blank" rel="noreferrer">@hiyeshu/todaycard</a>
+    </footer>
   </main>
 
-  <script src="./app.js"></script>
+  <script src="./data.js?v=20260624-saturated"></script>
+  <script src="./audio.js?v=20260623-orb"></script>
+  <script src="./app.js?v=20260624-mobile"></script>
 </body>
 </html>

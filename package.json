@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "build": "rm -rf dist && mkdir -p dist && cp index.html styles.css app.js dist/"
+    "build": "rm -rf dist && mkdir -p dist/assets && cp index.html styles.css data.js audio.js app.js dist/ && cp assets/todaycard.svg dist/assets/"
   }
 }

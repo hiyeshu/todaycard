@@ -1,7 +1,7 @@
 /*
-[INPUT]: 依赖 index.html 的 DOM 类名和 CSS 变量、getstampstack.vercel.app 的白底 demo 视觉、app.js 的翻牌状态类
-[OUTPUT]: 对外提供极简移动优先 TodayCard 布局、stampstack-like coverflow、圆角质感牌背、答案正面、10x10 网格和点击翻牌样式
-[POS]: 项目视觉层，只负责形态、动效和响应式，不拥有 decision/options 数据和随机图案算法
+[INPUT]: 依赖 index.html 的 DOM 类名和 CSS 变量、getstampstack.vercel.app 的白底 demo 视觉、app.js 的翻牌与发牌状态类
+[OUTPUT]: 对外提供极简移动优先 TodayCard 布局、淡彩灰格背景、视口约束 coverflow、圆角质感牌背、答案正面、默认正面 10x10 网格、答案页同源实色符号、两行答案位、圆框输入控制、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和点击翻牌样式
+[POS]: 项目视觉层，只负责形态、动效和响应式，不拥有 decision 数据、候选生成和随机图案算法
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
 :root {
@@ -37,13 +37,12 @@ body {
 
 body {
   min-height: 100vh;
-  padding: 32px 20px 34px;
+  padding: 32px 0 34px;
   overflow-x: hidden;
 }
 
 button,
-input,
-textarea {
+input {
   font: inherit;
 }
 
@@ -56,7 +55,7 @@ button {
   padding: 10px 18px;
   font-size: 14px;
   font-weight: 520;
-  letter-spacing: -0.4px;
+  letter-spacing: 0;
   cursor: pointer;
   transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
 }
@@ -65,8 +64,7 @@ button:hover { transform: translateY(-1px); }
 button:active { transform: translateY(0); }
 
 button:focus-visible,
-input:focus-visible,
-textarea:focus-visible {
+input:focus-visible {
   outline: 0;
   box-shadow:
     0 0 0 1px rgba(23, 23, 23, 0.16),
@@ -94,7 +92,7 @@ button.ghost {
 }
 
 .app {
-  width: min(100%, 430px);
+  width: min(calc(100vw - 40px), 430px);
   margin: 0 auto;
   display: grid;
   gap: 24px;
@@ -115,7 +113,7 @@ button.ghost {
   font-size: 24px;
   font-weight: 780;
   line-height: 1;
-  letter-spacing: -0.9px;
+  letter-spacing: 0;
 }
 
 .stage {
@@ -137,6 +135,8 @@ button.ghost {
 }
 
 .deck-shell.is-dragging { cursor: grabbing; }
+.deck-shell.is-dealing { cursor: wait; }
+.deck-shell.is-dealing .card { pointer-events: none; }
 
 .deck {
   position: absolute;
@@ -156,7 +156,7 @@ button.ghost {
   --card-frame: #00c9a7;
   --lift: 0px;
   position: absolute;
-  width: 240px;
+  width: min(240px, 62vw);
   aspect-ratio: 0.76;
   color: var(--card-text);
   opacity: var(--opacity);
@@ -180,10 +180,44 @@ button.ghost {
   }
 }
 
+.deal-motion {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transform-origin: center;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.card.is-dealing .deal-motion {
+  animation: deal-card 520ms cubic-bezier(0.18, 0.82, 0.2, 1) both;
+  animation-delay: var(--deal-delay, 0ms);
+}
+
+@keyframes deal-card {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -58px, 96px) rotateZ(-5deg) scale(0.82);
+  }
+
+  64% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotateZ(0) scale(1);
+  }
+}
+
 .card-inner {
   position: absolute;
   inset: 0;
-  border: 10px solid color-mix(in srgb, var(--card-frame), #fff 18%);
+  border: 10px solid color-mix(in srgb, var(--card-frame), #fff 6%);
   border-radius: 28px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.08)),
@@ -253,13 +287,15 @@ button.ghost {
 }
 
 .card-front {
+  grid-template-rows: auto 1fr auto auto;
   transform: rotateY(180deg) translateZ(0.6px);
   -webkit-transform: rotateY(180deg) translateZ(0.6px);
 }
 
 .card-top,
 .card-bottom,
-.option-reveal,
+.grid,
+.symbol-grid,
 .answer-copy {
   position: relative;
   z-index: 2;
@@ -278,7 +314,7 @@ button.ghost {
 
 .card-title,
 .card-id,
-.card-signature,
+.card-choice-label,
 .card-date {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -293,13 +329,11 @@ button.ghost {
   flex: 0 0 auto;
 }
 
-.card-signature {
+.card-choice-label {
   max-width: 112px;
 }
 
 .grid {
-  position: relative;
-  z-index: 2;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   width: min(100%, 184px);
@@ -318,7 +352,26 @@ button.ghost {
   background: var(--card-mark);
 }
 
-.option-reveal,
+.symbol-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  width: 104px;
+  aspect-ratio: 1;
+  gap: 4px;
+  align-self: center;
+  justify-self: center;
+  transform: rotate(-6deg);
+}
+
+.symbol-cell {
+  grid-column: var(--column);
+  grid-row: var(--row);
+  border-radius: 4px;
+  background: var(--card-mark);
+}
+
 .answer-copy {
   align-self: center;
   display: grid;
@@ -330,7 +383,7 @@ button.ghost {
   color: var(--card-muted);
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -341,108 +394,154 @@ button.ghost {
   font-size: 20px;
   font-weight: 680;
   line-height: 1.05;
-  letter-spacing: -0.5px;
+  letter-spacing: 0;
+  min-height: 2.1em;
+  display: grid;
+  place-items: center;
   overflow-wrap: anywhere;
 }
 
-.option-text.sealed {
-  color: #777;
-  font-size: 18px;
-}
-
-.answer-mark {
-  align-self: center;
-  justify-self: center;
-  width: 104px;
-  aspect-ratio: 1;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 7px;
-  transform: rotate(-7deg);
-}
-
-.answer-mark span {
-  border-radius: 6px;
-  background: var(--card-frame);
-}
-
-.answer-mark span:nth-child(1) {
-  grid-column: 1 / 3;
-  grid-row: 1 / 3;
-}
-
-.answer-mark span:nth-child(2) {
-  grid-column: 2 / 4;
-  grid-row: 2 / 4;
-  opacity: 0.78;
-}
-
-.answer-mark span:nth-child(3) {
-  grid-column: 1 / 2;
-  grid-row: 3 / 4;
-  opacity: 0.62;
-}
-
 .control-panel {
+  width: min(100%, 390px);
+  margin: -4px auto 0;
   display: grid;
-  gap: 12px;
 }
 
 .field {
   display: grid;
-  gap: 8px;
+  gap: 12px;
 }
 
-.field label,
-.advanced summary {
-  color: #989897;
-  font-size: 12px;
-  font-weight: 560;
-  line-height: 20px;
-  letter-spacing: -0.2px;
+.field label {
+  color: #9a9a9a;
+  font-size: 15px;
+  font-weight: 760;
+  line-height: 1.1;
+  letter-spacing: 0;
 }
 
-.field input,
-.field textarea {
+.decision-row {
+  position: relative;
+}
+
+.field input {
   width: 100%;
-  border: 1px solid #e5e5e5;
-  border-radius: 16px;
-  background: #fff;
+  min-width: 0;
+  min-height: 70px;
+  border: 1px solid #dedede;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.88);
   color: #252525;
-  padding: 14px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.45;
-  letter-spacing: -0.2px;
+  padding: 0 110px 0 20px;
+  font-size: 18px;
+  font-weight: 760;
+  line-height: 1.2;
+  letter-spacing: 0;
+  box-shadow:
+    0 0 0 4px rgba(23, 23, 23, 0.035),
+    inset 0 0 0 1px rgba(23, 23, 23, 0.04);
 }
 
-.field textarea {
-  min-height: 112px;
-  resize: vertical;
+.field input::placeholder {
+  color: #8f8f8f;
+  opacity: 1;
 }
 
-.advanced {
+#buildButton {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: auto;
+  min-width: 90px;
+  max-width: calc(100% - 16px);
+  min-height: 48px;
   display: grid;
-  gap: 10px;
-  margin-top: 2px;
+  place-items: center;
+  overflow: hidden;
+  border-color: rgba(23, 23, 23, 0.88);
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background:
+    radial-gradient(circle at 34% 22%, rgba(255, 255, 255, 0.2), transparent 32%),
+    linear-gradient(180deg, #272727, #0f0f0f);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -10px 18px rgba(0, 0, 0, 0.42),
+    0 13px 24px rgba(0, 0, 0, 0.2);
+  padding: 0 18px;
 }
 
-.advanced summary {
-  width: max-content;
-  cursor: pointer;
-  list-style: none;
+#buildButton:hover {
+  transform: translateY(calc(-50% - 2px)) scale(1.015);
 }
 
-.advanced summary::-webkit-details-marker {
-  display: none;
+#buildButton:active {
+  transform: translateY(-50%) scale(0.98);
 }
 
-.advanced summary::after {
-  content: " +";
+#buildButton.is-building {
+  animation: draw-pulse 620ms ease-in-out infinite;
 }
 
-.advanced[open] summary::after {
-  content: " -";
+#buildButton:disabled {
+  cursor: wait;
+  opacity: 1;
+}
+
+.button-text {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.source-footer {
+  display: grid;
+  justify-items: center;
+  margin-top: clamp(88px, 15vh, 144px);
+}
+
+.source-link {
+  color: #c3c3c3;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-decoration: none;
+  text-underline-offset: 4px;
+  transition: color 160ms ease, opacity 160ms ease;
+}
+
+.source-link:hover {
+  color: #8a8a8a;
+  text-decoration: underline;
+}
+
+.source-link:focus-visible {
+  outline: 0;
+  color: #767676;
+  text-decoration: underline;
+}
+
+@keyframes draw-pulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -10px 18px rgba(0, 0, 0, 0.42),
+      0 12px 24px rgba(0, 0, 0, 0.16);
+  }
+
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -10px 18px rgba(0, 0, 0, 0.36),
+      0 14px 30px rgba(0, 0, 0, 0.22);
+  }
 }
 
 .empty {
@@ -453,22 +552,26 @@ button.ghost {
   color: var(--muted);
   font-family: var(--mono);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 @media (max-width: 430px) {
-  .app { gap: 22px; }
+  .app {
+    width: min(calc(100vw - 32px), 398px);
+    gap: 22px;
+  }
 
   .hero {
     gap: 0;
   }
 
   .deck-shell {
-    height: 346px;
+    height: clamp(318px, 88vw, 346px);
+    overflow: hidden;
   }
 
   .card {
-    width: 220px;
+    width: clamp(202px, 56vw, 220px);
   }
 
   .card-inner {
@@ -482,6 +585,29 @@ button.ghost {
   .stamp-face {
     padding: 17px;
   }
+
+  .field input {
+    min-height: 66px;
+    border-radius: 21px;
+    padding: 0 94px 0 18px;
+    font-size: 17px;
+  }
+
+  #buildButton {
+    right: 7px;
+    min-width: 78px;
+    min-height: 46px;
+    padding: 0 14px;
+  }
+
+  .button-text {
+    font-size: 14px;
+  }
+
+  .source-footer {
+    margin-top: clamp(70px, 12vh, 112px);
+  }
+
 }
 
 @media (min-width: 860px) {

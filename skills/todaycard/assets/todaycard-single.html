@@ -1,6 +1,6 @@
 <!--
-[INPUT]: 依赖 TodayCard split source 的 index.html、styles.css、app.js 快照
-[OUTPUT]: 对外提供可直接复制运行的 TodayCard 单文件 HTML 模板资产
+[INPUT]: 依赖 TodayCard split source 的 index.html、styles.css、data.js、audio.js、app.js 和 assets/todaycard.svg 快照
+[OUTPUT]: 对外提供可直接复制运行、带内联 SVG favicon、淡彩灰格背景、视口约束 coverflow、圆框 i18n 输入、青春可爱高饱和 candy palette、Choice A-D 选项编号、16 个具象图案、默认正面 10x10 网格、答案页同源实色符号、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和沉浸 Web Audio 音效的 TodayCard 单文件 HTML 模板资产
 [POS]: skills/todaycard/assets 的成品模板，给 agent 快速创建单文件决策卡页面，不替代仓库源码真相源
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -10,83 +10,641 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>TodayCard</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iNDUiIGZpbGw9IiM1N0IxRkYiLz4KPHJlY3QgeD0iOSIgeT0iOSIgd2lkdGg9IjIyMiIgaGVpZ2h0PSIyMjIiIHJ4PSIzOCIgZmlsbD0iI0ZGRkVGRiIvPgo8cmVjdCB4PSIzMiIgeT0iNDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiM1N0IxRkYiLz4KPHJlY3QgeD0iNjgiIHk9IjQwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjNTdCMUZGIi8+CjxyZWN0IHg9IjEwNSIgeT0iNDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiM1N0IxRkYiLz4KPHJlY3QgeD0iMTA1IiB5PSI4MyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iIzU3QjFGRiIvPgo8cmVjdCB4PSI2OCIgeT0iODMiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNFRkVFRjgiLz4KPHJlY3QgeD0iMzEiIHk9IjgzIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE3OSIgeT0iODMiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNFRkVFRjgiLz4KPHJlY3QgeD0iNjgiIHk9IjEyNyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iI0VGRUVGOCIvPgo8cmVjdCB4PSIzMSIgeT0iMTI3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE0MiIgeT0iODMiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNFRkVFRjgiLz4KPHJlY3QgeD0iNjgiIHk9IjE3MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iI0VGRUVGOCIvPgo8cmVjdCB4PSIzMSIgeT0iMTcwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjEwNSIgeT0iMTI3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjNTdCMUZGIi8+CjxyZWN0IHg9IjE3OSIgeT0iMTI3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE0MiIgeT0iMTI3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjEwNSIgeT0iMTcwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjNTdCMUZGIi8+CjxyZWN0IHg9IjE3OSIgeT0iMTcwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE0MiIgeT0iMTcwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE0MiIgeT0iNDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiM1N0IxRkYiLz4KPHJlY3QgeD0iMTc4IiB5PSI0MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iIzU3QjFGRiIvPgo8L3N2Zz4K">
   <style>
-:root { --page: #ffffff; --ink: #252525; --muted: #8e8e8e; --quiet: #c7c7c7; --line: #e9e9e9; --soft: #f8f8f8; --shadow: 0 18px 42px rgba(30, 30, 30, 0.08); --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/*
+[INPUT]: 依赖 index.html 的 DOM 类名和 CSS 变量、getstampstack.vercel.app 的白底 demo 视觉、app.js 的翻牌与发牌状态类
+[OUTPUT]: 对外提供极简移动优先 TodayCard 布局、淡彩灰格背景、视口约束 coverflow、圆角质感牌背、答案正面、默认正面 10x10 网格、答案页同源实色符号、两行答案位、圆框输入控制、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和点击翻牌样式
+[POS]: 项目视觉层，只负责形态、动效和响应式，不拥有 decision 数据、候选生成和随机图案算法
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+*/
+:root {
+  --page: #ffffff;
+  --ink: #252525;
+  --muted: #8e8e8e;
+  --quiet: #c7c7c7;
+  --line: #e9e9e9;
+  --soft: #f8f8f8;
+  --shadow: 0 18px 42px rgba(30, 30, 30, 0.08);
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 [hidden] { display: none !important; }
-html, body { margin: 0; min-height: 100%; background: radial-gradient(circle at 18% 4%, rgba(64, 114, 255, 0.08), transparent 22%), radial-gradient(circle at 77% 0%, rgba(95, 213, 0, 0.08), transparent 22%), radial-gradient(circle at 97% 4%, rgba(255, 101, 72, 0.08), transparent 20%), var(--page); color: var(--ink); font-family: var(--sans); }
-body { min-height: 100vh; padding: 32px 20px 34px; overflow-x: hidden; }
-button, input, textarea { font: inherit; }
-button { min-height: 36px; border: 1px solid #171717; border-radius: 14px; background: #171717; color: #fafafa; padding: 10px 18px; font-size: 14px; font-weight: 520; letter-spacing: -0.4px; cursor: pointer; transition: transform 160ms ease, opacity 160ms ease, background 160ms ease; }
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 18% 4%, rgba(64, 114, 255, 0.08), transparent 22%),
+    radial-gradient(circle at 77% 0%, rgba(95, 213, 0, 0.08), transparent 22%),
+    radial-gradient(circle at 97% 4%, rgba(255, 101, 72, 0.08), transparent 20%),
+    var(--page);
+  color: var(--ink);
+  font-family: var(--sans);
+}
+
+body {
+  min-height: 100vh;
+  padding: 32px 0 34px;
+  overflow-x: hidden;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  min-height: 36px;
+  border: 1px solid #171717;
+  border-radius: 14px;
+  background: #171717;
+  color: #fafafa;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 520;
+  letter-spacing: 0;
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
+}
+
 button:hover { transform: translateY(-1px); }
 button:active { transform: translateY(0); }
-button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 0; box-shadow: 0 0 0 1px rgba(23, 23, 23, 0.16), 0 0 0 4px rgba(23, 23, 23, 0.06); }
-.deck-shell:focus-visible { outline: 0; }
-button.secondary, button.ghost { border-color: #e5e5e5; background: #fff; color: #0a0a0a; }
-button.ghost { width: 36px; min-width: 36px; padding: 0; display: inline-grid; place-items: center; border-radius: 50%; }
-.app { width: min(100%, 430px); margin: 0 auto; display: grid; gap: 24px; }
-.hero { display: grid; justify-items: center; }
-.brand { display: grid; justify-items: center; }
-.brand h1 { margin: 0; font-size: 24px; font-weight: 780; line-height: 1; letter-spacing: -0.9px; }
-.stage { display: grid; gap: 0; }
-.deck-shell { position: relative; height: 372px; width: 100%; margin-inline: 0; perspective: 900px; -webkit-perspective: 900px; touch-action: pan-y; user-select: none; cursor: grab; overflow: visible; }
+
+button:focus-visible,
+input:focus-visible {
+  outline: 0;
+  box-shadow:
+    0 0 0 1px rgba(23, 23, 23, 0.16),
+    0 0 0 4px rgba(23, 23, 23, 0.06);
+}
+
+.deck-shell:focus-visible {
+  outline: 0;
+}
+
+button.secondary,
+button.ghost {
+  border-color: #e5e5e5;
+  background: #fff;
+  color: #0a0a0a;
+}
+
+button.ghost {
+  width: 36px;
+  min-width: 36px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.app {
+  width: min(calc(100vw - 40px), 430px);
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.hero {
+  display: grid;
+  justify-items: center;
+}
+
+.brand {
+  display: grid;
+  justify-items: center;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 780;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.stage {
+  display: grid;
+  gap: 0;
+}
+
+.deck-shell {
+  position: relative;
+  height: 372px;
+  width: 100%;
+  margin-inline: 0;
+  perspective: 900px;
+  -webkit-perspective: 900px;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+  overflow: visible;
+}
+
 .deck-shell.is-dragging { cursor: grabbing; }
-.deck { position: absolute; inset: 0; display: grid; place-items: center; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; }
-.card { --card-bg: #fff; --card-cell: #f2f2f2; --card-mark: #00c9a7; --card-text: #666; --card-muted: #a4a4a4; --card-frame: #00c9a7; --lift: 0px; position: absolute; width: 240px; aspect-ratio: 0.76; color: var(--card-text); opacity: var(--opacity); pointer-events: auto; cursor: pointer; transform: translateY(calc(-20px + var(--lift))) translateX(var(--x)) translateZ(var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale)); transform-origin: center; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 450ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 450ms cubic-bezier(0.25, 0.46, 0.45, 0.94); will-change: transform, opacity; }
-.deck-shell.is-dragging .card { transition: none; }
-@media (hover: hover) and (pointer: fine) { .card:hover { --lift: -8px; }
+.deck-shell.is-dealing { cursor: wait; }
+.deck-shell.is-dealing .card { pointer-events: none; }
+
+.deck {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
-.card-inner { position: absolute; inset: 0; border: 10px solid color-mix(in srgb, var(--card-frame), #fff 18%); border-radius: 28px; background: linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.08)), var(--card-frame); box-shadow: 0 22px 32px rgba(31, 31, 31, 0.1), 0 8px 14px rgba(31, 31, 31, 0.08); transform-style: preserve-3d; transform-origin: center; transition: transform 560ms cubic-bezier(0.2, 0.78, 0.12, 1); transform: translateZ(0); will-change: transform; -webkit-transform-style: preserve-3d; -webkit-transform: translateZ(0); }
-.card-inner::before { content: ""; position: absolute; inset: -10px; z-index: 4; pointer-events: none; border-radius: 31px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58), inset 0 -14px 24px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(255, 255, 255, 0.9); }
-.card.is-flipped .card-inner { transform: translateZ(0) rotateY(180deg); -webkit-transform: translateZ(0) rotateY(180deg); }
-.stamp-face { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 12px; padding: 18px; border-radius: 20px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 250, 250, 0.9)), #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(0, 0, 0, 0.045); overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(0deg) translateZ(0.6px); -webkit-transform: rotateY(0deg) translateZ(0.6px); transform-style: preserve-3d; -webkit-transform-style: preserve-3d; }
-.stamp-face::before { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, rgba(255, 255, 255, 0.42), transparent 42%), repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.018) 0 1px, transparent 1px 5px); pointer-events: none; }
-.card-front { transform: rotateY(180deg) translateZ(0.6px); -webkit-transform: rotateY(180deg) translateZ(0.6px); }
-.card-top, .card-bottom, .option-reveal, .answer-copy { position: relative; z-index: 2; }
-.card-top, .card-bottom { display: flex; justify-content: space-between; gap: 12px; color: var(--card-muted); font-family: var(--mono); font-size: 10px; line-height: 1; }
-.card-title, .card-id, .card-signature, .card-date { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.card-title { max-width: 112px; }
-.card-date { flex: 0 0 auto; }
-.card-signature { max-width: 112px; }
-.grid { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(10, 1fr); width: min(100%, 184px); gap: 4px; align-self: center; justify-self: center; }
-.cell { aspect-ratio: 1; border-radius: 3px; background: var(--card-cell); }
-.cell.is-on { background: var(--card-mark); }
-.option-reveal, .answer-copy { align-self: center; display: grid; gap: 8px; text-align: center; }
-.option-label { color: var(--card-muted); font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
-.option-text, .answer-text { margin: 0; color: #666; font-size: 20px; font-weight: 680; line-height: 1.05; letter-spacing: -0.5px; overflow-wrap: anywhere; }
-.option-text.sealed { color: #777; font-size: 18px; }
-.answer-mark { align-self: center; justify-self: center; width: 104px; aspect-ratio: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; transform: rotate(-7deg); }
-.answer-mark span { border-radius: 6px; background: var(--card-frame); }
-.answer-mark span:nth-child(1) { grid-column: 1 / 3; grid-row: 1 / 3; }
-.answer-mark span:nth-child(2) { grid-column: 2 / 4; grid-row: 2 / 4; opacity: 0.78; }
-.answer-mark span:nth-child(3) { grid-column: 1 / 2; grid-row: 3 / 4; opacity: 0.62; }
-.control-panel { display: grid; gap: 12px; }
-.field { display: grid; gap: 8px; }
-.field label, .advanced summary { color: #989897; font-size: 12px; font-weight: 560; line-height: 20px; letter-spacing: -0.2px; }
-.field input, .field textarea { width: 100%; border: 1px solid #e5e5e5; border-radius: 16px; background: #fff; color: #252525; padding: 14px 16px; font-size: 14px; font-weight: 500; line-height: 1.45; letter-spacing: -0.2px; }
-.field textarea { min-height: 112px; resize: vertical; }
-.advanced { display: grid; gap: 10px; margin-top: 2px; }
-.advanced summary { width: max-content; cursor: pointer; list-style: none; }
-.advanced summary::-webkit-details-marker { display: none; }
-.advanced summary::after { content: " +"; }
-.advanced[open] summary::after { content: " -"; }
-.empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; }
-@media (max-width: 430px) { .app { gap: 22px; }
-.hero { gap: 0; }
-.deck-shell { height: 346px; }
-.card { width: 220px; }
-.card-inner { border-width: 9px; }
-.card-inner::before { inset: -9px; }
-.stamp-face { padding: 17px; }
+
+.card {
+  --card-bg: #fff;
+  --card-cell: #f2f2f2;
+  --card-mark: #00c9a7;
+  --card-text: #666;
+  --card-muted: #a4a4a4;
+  --card-frame: #00c9a7;
+  --lift: 0px;
+  position: absolute;
+  width: min(240px, 62vw);
+  aspect-ratio: 0.76;
+  color: var(--card-text);
+  opacity: var(--opacity);
+  pointer-events: auto;
+  cursor: pointer;
+  transform: translateY(calc(-20px + var(--lift))) translateX(var(--x)) translateZ(var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));
+  transform-origin: center;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 450ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 450ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
 }
-@media (min-width: 860px) { body { padding-top: 50px; }
-.app { width: min(100%, 520px); gap: 34px; }
-.deck-shell { height: 390px; width: 100vw; margin-inline: calc(50% - 50vw); }
+
+.deck-shell.is-dragging .card {
+  transition: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    --lift: -8px;
+  }
+}
+
+.deal-motion {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transform-origin: center;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.card.is-dealing .deal-motion {
+  animation: deal-card 520ms cubic-bezier(0.18, 0.82, 0.2, 1) both;
+  animation-delay: var(--deal-delay, 0ms);
+}
+
+@keyframes deal-card {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -58px, 96px) rotateZ(-5deg) scale(0.82);
+  }
+
+  64% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotateZ(0) scale(1);
+  }
+}
+
+.card-inner {
+  position: absolute;
+  inset: 0;
+  border: 10px solid color-mix(in srgb, var(--card-frame), #fff 6%);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.08)),
+    var(--card-frame);
+  box-shadow:
+    0 22px 32px rgba(31, 31, 31, 0.1),
+    0 8px 14px rgba(31, 31, 31, 0.08);
+  transform-style: preserve-3d;
+  transform-origin: center;
+  transition: transform 560ms cubic-bezier(0.2, 0.78, 0.12, 1);
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-transform-style: preserve-3d;
+  -webkit-transform: translateZ(0);
+}
+
+.card-inner::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: 31px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    inset 0 -14px 24px rgba(0, 0, 0, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.card.is-flipped .card-inner {
+  transform: translateZ(0) rotateY(180deg);
+  -webkit-transform: translateZ(0) rotateY(180deg);
+}
+
+.stamp-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 250, 250, 0.9)),
+    #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.045);
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(0deg) translateZ(0.6px);
+  -webkit-transform: rotateY(0deg) translateZ(0.6px);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+.stamp-face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.42), transparent 42%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.018) 0 1px, transparent 1px 5px);
+  pointer-events: none;
+}
+
+.card-front {
+  grid-template-rows: auto 1fr auto auto;
+  transform: rotateY(180deg) translateZ(0.6px);
+  -webkit-transform: rotateY(180deg) translateZ(0.6px);
+}
+
+.card-top,
+.card-bottom,
+.grid,
+.symbol-grid,
+.answer-copy {
+  position: relative;
+  z-index: 2;
+}
+
+.card-top,
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--card-muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.card-title,
+.card-id,
+.card-choice-label,
+.card-date {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-title {
+  max-width: 112px;
+}
+
+.card-date {
+  flex: 0 0 auto;
+}
+
+.card-choice-label {
+  max-width: 112px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  width: min(100%, 184px);
+  gap: 4px;
+  align-self: center;
+  justify-self: center;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--card-cell);
+}
+
+.cell.is-on {
+  background: var(--card-mark);
+}
+
+.symbol-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  width: 104px;
+  aspect-ratio: 1;
+  gap: 4px;
+  align-self: center;
+  justify-self: center;
+  transform: rotate(-6deg);
+}
+
+.symbol-cell {
+  grid-column: var(--column);
+  grid-row: var(--row);
+  border-radius: 4px;
+  background: var(--card-mark);
+}
+
+.answer-copy {
+  align-self: center;
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.option-label {
+  color: var(--card-muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.option-text,
+.answer-text {
+  margin: 0;
+  color: #666;
+  font-size: 20px;
+  font-weight: 680;
+  line-height: 1.05;
+  letter-spacing: 0;
+  min-height: 2.1em;
+  display: grid;
+  place-items: center;
+  overflow-wrap: anywhere;
+}
+
+.control-panel {
+  width: min(100%, 390px);
+  margin: -4px auto 0;
+  display: grid;
+}
+
+.field {
+  display: grid;
+  gap: 12px;
+}
+
+.field label {
+  color: #9a9a9a;
+  font-size: 15px;
+  font-weight: 760;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.decision-row {
+  position: relative;
+}
+
+.field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 70px;
+  border: 1px solid #dedede;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #252525;
+  padding: 0 110px 0 20px;
+  font-size: 18px;
+  font-weight: 760;
+  line-height: 1.2;
+  letter-spacing: 0;
+  box-shadow:
+    0 0 0 4px rgba(23, 23, 23, 0.035),
+    inset 0 0 0 1px rgba(23, 23, 23, 0.04);
+}
+
+.field input::placeholder {
+  color: #8f8f8f;
+  opacity: 1;
+}
+
+#buildButton {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: auto;
+  min-width: 90px;
+  max-width: calc(100% - 16px);
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-color: rgba(23, 23, 23, 0.88);
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background:
+    radial-gradient(circle at 34% 22%, rgba(255, 255, 255, 0.2), transparent 32%),
+    linear-gradient(180deg, #272727, #0f0f0f);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -10px 18px rgba(0, 0, 0, 0.42),
+    0 13px 24px rgba(0, 0, 0, 0.2);
+  padding: 0 18px;
+}
+
+#buildButton:hover {
+  transform: translateY(calc(-50% - 2px)) scale(1.015);
+}
+
+#buildButton:active {
+  transform: translateY(-50%) scale(0.98);
+}
+
+#buildButton.is-building {
+  animation: draw-pulse 620ms ease-in-out infinite;
+}
+
+#buildButton:disabled {
+  cursor: wait;
+  opacity: 1;
+}
+
+.button-text {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.source-footer {
+  display: grid;
+  justify-items: center;
+  margin-top: clamp(88px, 15vh, 144px);
+}
+
+.source-link {
+  color: #c3c3c3;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-decoration: none;
+  text-underline-offset: 4px;
+  transition: color 160ms ease, opacity 160ms ease;
+}
+
+.source-link:hover {
+  color: #8a8a8a;
+  text-decoration: underline;
+}
+
+.source-link:focus-visible {
+  outline: 0;
+  color: #767676;
+  text-decoration: underline;
+}
+
+@keyframes draw-pulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -10px 18px rgba(0, 0, 0, 0.42),
+      0 12px 24px rgba(0, 0, 0, 0.16);
+  }
+
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -10px 18px rgba(0, 0, 0, 0.36),
+      0 14px 30px rgba(0, 0, 0, 0.22);
+  }
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+@media (max-width: 430px) {
+  .app {
+    width: min(calc(100vw - 32px), 398px);
+    gap: 22px;
+  }
+
+  .hero {
+    gap: 0;
+  }
+
+  .deck-shell {
+    height: clamp(318px, 88vw, 346px);
+    overflow: hidden;
+  }
+
+  .card {
+    width: clamp(202px, 56vw, 220px);
+  }
+
+  .card-inner {
+    border-width: 9px;
+  }
+
+  .card-inner::before {
+    inset: -9px;
+  }
+
+  .stamp-face {
+    padding: 17px;
+  }
+
+  .field input {
+    min-height: 66px;
+    border-radius: 21px;
+    padding: 0 94px 0 18px;
+    font-size: 17px;
+  }
+
+  #buildButton {
+    right: 7px;
+    min-width: 78px;
+    min-height: 46px;
+    padding: 0 14px;
+  }
+
+  .button-text {
+    font-size: 14px;
+  }
+
+  .source-footer {
+    margin-top: clamp(70px, 12vh, 112px);
+  }
+
+}
+
+@media (min-width: 860px) {
+  body {
+    padding-top: 50px;
+  }
+
+  .app {
+    width: min(100%, 520px);
+    gap: 34px;
+  }
+
+  .deck-shell {
+    height: 390px;
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
+
 }
   </style>
 </head>
 <body>
-<main class="app">
+  <main class="app">
     <header class="hero">
       <div class="brand">
         <h1>TodayCard</h1>
@@ -96,185 +654,250 @@ button.ghost { width: 36px; min-width: 36px; padding: 0; display: inline-grid; p
     <section class="stage" aria-label="TodayCard deck">
       <div class="deck-shell" id="deckShell" tabindex="0" aria-label="Draggable TodayCard deck">
         <div class="deck" id="deck"></div>
-        <div class="empty" id="emptyState" hidden>No cards</div>
+        <div class="empty" id="emptyState" data-i18n="emptyState" hidden>No cards</div>
       </div>
     </section>
 
     <section class="control-panel" aria-label="TodayCard controls">
       <div class="field">
-        <label for="decisionInput">今天决定什么？</label>
-        <input id="decisionInput" autocomplete="off" value="今天要不要推进这个想法" maxlength="96">
-      </div>
-
-      <button id="buildButton" type="button">抽一组卡</button>
-
-      <details class="advanced">
-        <summary>自定义选项</summary>
-        <div class="field">
-          <label for="optionsInput">一行一个选项，可留空</label>
-          <textarea id="optionsInput" spellcheck="false" placeholder="留空时自动生成 4 张牌"></textarea>
+        <div class="decision-row">
+          <input id="decisionInput" autocomplete="off" placeholder="今天想决定什么？" maxlength="96" aria-label="今天想决定什么？">
+          <button id="buildButton" class="draw-button" type="button" aria-label="抽卡" data-i18n-aria-label="drawButton">
+            <span class="button-text" data-i18n="drawButton">抽卡</span>
+          </button>
         </div>
-      </details>
+      </div>
     </section>
+
+    <footer class="source-footer" aria-label="TodayCard source">
+      <a class="source-link" href="https://github.com/hiyeshu/todaycard" target="_blank" rel="noreferrer">@hiyeshu/todaycard</a>
+    </footer>
   </main>
+
   <script>
-/* ------------------------------
-   数据层: 稳定 seed, 不信裸随机
------------------------------- */
+/*
+[INPUT]: 依赖 TodayCard 的青春可爱高饱和 candy palette、具象可爱 10x10 grid 契约和 app.js 的运行时消费
+[OUTPUT]: 对外提供 window.TodayCardData，包含带 family 的 PALETTES、OPTION_LABELS、GRID_PRESETS 三个稳定数据源
+[POS]: 项目数据层，只保存可扩展的静态 palette、选项编号和图案预设，不拥有 DOM、交互、音效或 Dify 行为
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+*/
+(function () {
 const PALETTES = [
   {
-    name: 'meridian',
+    name: 'soda-blue',
+    family: 'blue',
     bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#00c9a7',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#00c9a7'
+    cell: '#f1f3ff',
+    mark: '#606aff',
+    text: '#5d6071',
+    muted: '#a0a4b6',
+    frame: '#606aff'
   },
   {
-    name: 'verdant',
+    name: 'sky-candy',
+    family: 'sky',
     bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#5cd500',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#5cd500'
+    cell: '#eff7ff',
+    mark: '#55a9ff',
+    text: '#596470',
+    muted: '#9ca8b4',
+    frame: '#55a9ff'
   },
   {
-    name: 'aurora',
+    name: 'aqua-jelly',
+    family: 'aqua',
     bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#c6a0fd',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#c6a0fd'
+    cell: '#eefbfc',
+    mark: '#42edff',
+    text: '#596769',
+    muted: '#9ca9ad',
+    frame: '#42edff'
   },
   {
-    name: 'tidewater',
+    name: 'mint-cream',
+    family: 'mint',
     bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#85e8d8',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#85e8d8'
+    cell: '#effaf5',
+    mark: '#40fccf',
+    text: '#596762',
+    muted: '#9caaa5',
+    frame: '#40fccf'
   },
   {
-    name: 'lumen',
+    name: 'melon-soda',
+    family: 'green',
     bg: '#ffffff',
-    cell: '#f3f3f3',
-    mark: '#295df6',
-    text: '#666666',
-    muted: '#a4a4a4',
-    frame: '#295df6'
+    cell: '#f1faed',
+    mark: '#69fc41',
+    text: '#5f6958',
+    muted: '#a2ae9b',
+    frame: '#69fc41'
   },
   {
-    name: 'cinder',
+    name: 'kiwi-milk',
+    family: 'lime',
     bg: '#ffffff',
-    cell: '#f4f0ee',
-    mark: '#ff5f1f',
-    text: '#5c514d',
-    muted: '#a79b96',
-    frame: '#ff5f1f'
+    cell: '#f5fbe9',
+    mark: '#b9ff43',
+    text: '#636b55',
+    muted: '#a6af98',
+    frame: '#b9ff43'
   },
   {
-    name: 'rose',
+    name: 'lemon-cream',
+    family: 'yellow',
     bg: '#ffffff',
-    cell: '#f6eff3',
-    mark: '#e31b82',
-    text: '#5c4f56',
-    muted: '#ad9aa4',
-    frame: '#e31b82'
+    cell: '#fffade',
+    mark: '#ffd946',
+    text: '#6a644f',
+    muted: '#aca58f',
+    frame: '#ffd946'
   },
   {
-    name: 'signal',
+    name: 'banana-milk',
+    family: 'amber',
     bg: '#ffffff',
-    cell: '#f7f2e3',
-    mark: '#ffc400',
-    text: '#5c563f',
-    muted: '#a79f82',
-    frame: '#ffc400'
+    cell: '#fff7df',
+    mark: '#ffbd49',
+    text: '#6a604f',
+    muted: '#aca18f',
+    frame: '#ffbd49'
   },
   {
-    name: 'ember',
+    name: 'mango-milk',
+    family: 'orange',
     bg: '#ffffff',
-    cell: '#f7eeee',
-    mark: '#e11937',
-    text: '#5c4d50',
-    muted: '#a9969a',
-    frame: '#e11937'
+    cell: '#fff3e7',
+    mark: '#ff8f52',
+    text: '#6a5e56',
+    muted: '#ad9f98',
+    frame: '#ff8f52'
   },
   {
-    name: 'plum',
+    name: 'peach-soda',
+    family: 'peach',
     bg: '#ffffff',
-    cell: '#f1edf7',
-    mark: '#6f35e8',
-    text: '#514b5c',
-    muted: '#9c94ad',
-    frame: '#6f35e8'
+    cell: '#fff1eb',
+    mark: '#ff735f',
+    text: '#6a5c58',
+    muted: '#ad9e9a',
+    frame: '#ff735f'
   },
   {
-    name: 'moss',
+    name: 'coral-jelly',
+    family: 'coral',
     bg: '#ffffff',
-    cell: '#edf5ed',
-    mark: '#159a5b',
-    text: '#47584f',
-    muted: '#879d90',
-    frame: '#159a5b'
+    cell: '#fff0ef',
+    mark: '#ff665d',
+    text: '#6a5b59',
+    muted: '#ad9d9b',
+    frame: '#ff665d'
   },
   {
-    name: 'ink',
+    name: 'strawberry-milk',
+    family: 'strawberry',
     bg: '#ffffff',
-    cell: '#eeeeef',
-    mark: '#171717',
-    text: '#555555',
-    muted: '#9a9a9a',
-    frame: '#171717'
+    cell: '#fff0f3',
+    mark: '#ff5a76',
+    text: '#6a5a5d',
+    muted: '#ad9da1',
+    frame: '#ff5a76'
+  },
+  {
+    name: 'rose-milk',
+    family: 'rose',
+    bg: '#ffffff',
+    cell: '#fff0f7',
+    mark: '#ff55a1',
+    text: '#6a5a62',
+    muted: '#ad9da5',
+    frame: '#ff55a1'
+  },
+  {
+    name: 'bubblegum-milk',
+    family: 'pink',
+    bg: '#ffffff',
+    cell: '#fff2fb',
+    mark: '#ff5ecb',
+    text: '#6a5b66',
+    muted: '#ad9fa9',
+    frame: '#ff5ecb'
+  },
+  {
+    name: 'lavender-soda',
+    family: 'purple',
+    bg: '#ffffff',
+    cell: '#f4f1ff',
+    mark: '#8d70ff',
+    text: '#605d72',
+    muted: '#a29eb8',
+    frame: '#8d70ff'
+  },
+  {
+    name: 'lilac-sugar',
+    family: 'purple',
+    bg: '#ffffff',
+    cell: '#f8f0ff',
+    mark: '#b669ff',
+    text: '#655a72',
+    muted: '#a69bb8',
+    frame: '#b669ff'
+  },
+  {
+    name: 'grape-cream',
+    family: 'purple',
+    bg: '#ffffff',
+    cell: '#f4f1ff',
+    mark: '#9570ff',
+    text: '#615d72',
+    muted: '#a39fb8',
+    frame: '#9570ff'
+  },
+  {
+    name: 'blueberry-milk',
+    family: 'indigo',
+    bg: '#ffffff',
+    cell: '#f0f3ff',
+    mark: '#7083ff',
+    text: '#5d6072',
+    muted: '#a0a3b8',
+    frame: '#7083ff'
+  },
+  {
+    name: 'apricot-sugar',
+    family: 'apricot',
+    bg: '#ffffff',
+    cell: '#fff4eb',
+    mark: '#ff9a5c',
+    text: '#6a6058',
+    muted: '#ada19a',
+    frame: '#ff9a5c'
+  },
+  {
+    name: 'cherry-cream',
+    family: 'cherry',
+    bg: '#ffffff',
+    cell: '#fff0f2',
+    mark: '#ff657a',
+    text: '#6a5b5e',
+    muted: '#ad9da1',
+    frame: '#ff657a'
   }
 ];
 
-const DEFAULT_OPTIONS = [
-  '现在做一个最小版本',
-  '先不做，保留精力',
-  '问一个可信的人',
-  '只投入 30 分钟试验'
-];
-
-const AUTO_OPTION_COUNT = 4;
-const CARD_BRAND = 'Todaycard.app';
-const BUILD_LABEL = '抽一组卡';
-const BUILDING_LABEL = '抽牌中';
-const SIGNATURES = [
-  'small proof',
-  'soft bet',
-  'quiet yes',
-  'try today',
-  'ask once',
-  'light move',
-  'one step',
-  'clear no'
+const OPTION_LABELS = [
+  'Choice A',
+  'Choice B',
+  'Choice C',
+  'Choice D'
 ];
 
 const GRID_PRESETS = [
   {
-    name: 'spark',
-    rows: [
-      '....##....',
-      '....##....',
-      '...####...',
-      '..######..',
-      '##########',
-      '##########',
-      '..######..',
-      '...####...',
-      '....##....',
-      '....##....'
-    ]
-  },
-  {
     name: 'heart',
     rows: [
-      '.##....##.',
-      '####..####',
+      '..##..##..',
+      '.########.',
       '##########',
       '##########',
       '.########.',
@@ -282,7 +905,37 @@ const GRID_PRESETS = [
       '...####...',
       '....##....',
       '....##....',
-      '..........',
+      '..........'
+    ]
+  },
+  {
+    name: 'smile',
+    rows: [
+      '..######..',
+      '.########.',
+      '##......##',
+      '#.##..##.#',
+      '#........#',
+      '#........#',
+      '#..####..#',
+      '##......##',
+      '.########.',
+      '..######..'
+    ]
+  },
+  {
+    name: 'star',
+    rows: [
+      '....##....',
+      '....##....',
+      '..######..',
+      '##########',
+      '..######..',
+      '...####...',
+      '..######..',
+      '.###..###.',
+      '.##....##.',
+      '..........'
     ]
   },
   {
@@ -304,78 +957,374 @@ const GRID_PRESETS = [
     name: 'arrow',
     rows: [
       '.....#....',
-      '....##....',
-      '...###....',
-      '..####....',
-      '.######...',
-      '########..',
-      '.######...',
-      '..####....',
-      '...###....',
-      '....##....'
+      '.....##...',
+      '.....###..',
+      '#########.',
+      '##########',
+      '#########.',
+      '.....###..',
+      '.....##...',
+      '.....#....',
+      '..........'
     ]
   },
   {
-    name: 'bloom',
+    name: 'flower',
     rows: [
       '...####...',
       '..######..',
       '.##.##.##.',
-      '###.##.###',
       '##########',
-      '##########',
-      '###.##.###',
-      '.##.##.##.',
+      '..######..',
+      '...####...',
+      '....##....',
+      '....##....',
+      '..######..',
+      '.##..##...'
+    ]
+  },
+  {
+    name: 'moon',
+    rows: [
+      '...####...',
+      '..######..',
+      '.######...',
+      '.#####....',
+      '######....',
+      '######....',
+      '.#####....',
+      '.######...',
       '..######..',
       '...####...'
     ]
   },
   {
-    name: 'orbit',
+    name: 'clover',
     rows: [
+      '..##..##..',
+      '.####.###.',
+      '.########.',
       '..######..',
-      '.##....##.',
-      '##..##..##',
-      '#..####..#',
-      '#.######.#',
-      '#.######.#',
-      '#..####..#',
-      '##..##..##',
-      '.##....##.',
-      '..######..'
+      '...####...',
+      '##########',
+      '...####...',
+      '..######..',
+      '.###.####.',
+      '..##..##..'
     ]
   },
   {
-    name: 'gate',
+    name: 'ribbon',
+    rows: [
+      '##......##',
+      '###....###',
+      '####..####',
+      '.########.',
+      '..######..',
+      '..######..',
+      '.########.',
+      '####..####',
+      '###....###',
+      '##......##'
+    ]
+  },
+  {
+    name: 'crown',
+    rows: [
+      '##..##..##',
+      '##..##..##',
+      '###.##.###',
+      '##########',
+      '.########.',
+      '.########.',
+      '.########.',
+      '##########',
+      '..........',
+      '..........'
+    ]
+  },
+  {
+    name: 'gift',
     rows: [
       '##########',
-      '#........#',
-      '#.######.#',
-      '#.#....#.#',
-      '#.#.##.#.#',
-      '#.#.##.#.#',
-      '#.#....#.#',
-      '#.######.#',
-      '#........#',
+      '..##..##..',
+      '##########',
+      '##########',
+      '##..##..##',
+      '##..##..##',
+      '##########',
+      '##..##..##',
+      '##..##..##',
       '##########'
     ]
   },
   {
-    name: 'wave',
+    name: 'music',
     rows: [
-      '##........',
-      '###.......',
-      '.###......',
-      '..###.....',
-      '...###....',
-      '....###...',
-      '.....###..',
-      '......###.',
+      '.....####.',
+      '.....####.',
+      '.....##...',
+      '.....##...',
+      '.....##...',
+      '.....##...',
+      '..####....',
+      '.######...',
+      '.######...',
+      '..####....'
+    ]
+  },
+  {
+    name: 'sun',
+    rows: [
+      '#...##...#',
+      '.#.####.#.',
+      '..######..',
+      '##########',
+      '##########',
+      '..######..',
+      '.#.####.#.',
+      '#...##...#',
+      '....##....',
+      '..........'
+    ]
+  },
+  {
+    name: 'lollipop',
+    rows: [
+      '..####....',
+      '.######...',
+      '.######...',
+      '..####....',
+      '...##.....',
+      '...##.....',
+      '...##.....',
+      '...##.....',
+      '..####....',
+      '.##..##...'
+    ]
+  },
+  {
+    name: 'balloon',
+    rows: [
+      '...####...',
+      '..######..',
+      '.########.',
+      '.########.',
+      '.########.',
+      '..######..',
+      '...####...',
+      '....##....',
+      '...##.....',
+      '..##......'
+    ]
+  },
+  {
+    name: 'check',
+    rows: [
+      '........##',
       '.......###',
-      '........##'
+      '......###.',
+      '##...###..',
+      '###.###...',
+      '.#####....',
+      '..###.....',
+      '...#......',
+      '..........',
+      '..........'
     ]
   }
 ];
+
+  window.TodayCardData = {
+    PALETTES,
+    OPTION_LABELS,
+    GRID_PRESETS
+  };
+}());
+  </script>
+  <script>
+/*
+[INPUT]: 依赖浏览器 Web Audio API 和 app.js 传入的抽卡、发牌、翻牌事件
+[OUTPUT]: 对外提供 window.TodayCardAudio.playDrawStart、playDealCard、playFlipReveal 三个 8-bit 声音入口
+[POS]: 项目声音层，只合成抽卡仪式音效，不拥有卡片数据、DOM 结构和视觉状态
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+*/
+(function () {
+  const MASTER = 0.34;
+  const PITCH = 1.5;
+  const HERO_NOTES = [261.63, 329.63, 392, 523.25];
+
+  let audioContext;
+
+  function getContext() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return undefined;
+    if (!audioContext) audioContext = new AudioContextClass();
+    if (audioContext.state === 'suspended') {
+      void audioContext.resume();
+    }
+    return audioContext;
+  }
+
+  function cleanup(source, nodes) {
+    source.addEventListener('ended', () => {
+      nodes.forEach((node) => {
+        try {
+          node.disconnect();
+        } catch {
+          /* 浏览器可能已经回收节点连接。 */
+        }
+      });
+    }, { once: true });
+  }
+
+  function connectThroughGain(ctx, source, start, duration, volume) {
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.linearRampToValueAtTime(volume, start + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+    source.connect(gain);
+    gain.connect(ctx.destination);
+    return gain;
+  }
+
+  function playTone(ctx, start, frequency, duration, volume, type) {
+    const oscillator = ctx.createOscillator();
+    const gain = connectThroughGain(ctx, oscillator, start, duration, volume);
+    oscillator.type = type || 'square';
+    oscillator.frequency.setValueAtTime(frequency * PITCH, start);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.04);
+    cleanup(oscillator, [oscillator, gain]);
+  }
+
+  function playSweep(ctx, start, from, to, duration, volume) {
+    const oscillator = ctx.createOscillator();
+    const gain = connectThroughGain(ctx, oscillator, start, duration, volume);
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(from * PITCH, start);
+    oscillator.frequency.exponentialRampToValueAtTime(to * PITCH, start + duration);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.04);
+    cleanup(oscillator, [oscillator, gain]);
+  }
+
+  function playNoise(ctx, start, duration, volume, frequency, q) {
+    const buffer = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * duration)), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i += 1) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (data.length * 0.18));
+    }
+
+    const source = ctx.createBufferSource();
+    const filter = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    source.buffer = buffer;
+    filter.type = 'bandpass';
+    filter.frequency.value = frequency;
+    filter.Q.value = q;
+    gain.gain.value = volume;
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    source.start(start);
+    cleanup(source, [source, filter, gain]);
+  }
+
+  function playArpeggio(ctx, start, notes, gap, duration, volume) {
+    notes.forEach((frequency, index) => {
+      const hold = index === notes.length - 1 ? duration * 1.7 : duration;
+      playTone(ctx, start + index * gap, frequency, hold, volume, 'square');
+    });
+  }
+
+  function playDrawStart() {
+    const ctx = getContext();
+    if (!ctx) return;
+    const start = ctx.currentTime + 0.006;
+    playNoise(ctx, start, 0.018, MASTER * 0.34, 2200, 2.8);
+    playSweep(ctx, start + 0.01, 130.81, 392, 0.18, MASTER * 0.18);
+    playArpeggio(ctx, start + 0.035, [196, 246.94, 329.63], 0.055, 0.1, MASTER * 0.18);
+  }
+
+  function playDealCard(detail) {
+    const ctx = getContext();
+    if (!ctx) return;
+    const index = Number(detail && detail.index) || 0;
+    const start = ctx.currentTime + 0.004;
+    const pitch = [523.25, 587.33, 659.25, 783.99][index % 4];
+    playNoise(ctx, start, 0.024, MASTER * 0.28, 1700 + index * 420, 3.4);
+    playTone(ctx, start + 0.012, pitch, 0.055, MASTER * 0.12, 'square');
+  }
+
+  function playFlipReveal() {
+    const ctx = getContext();
+    if (!ctx) return;
+    const start = ctx.currentTime + 0.006;
+    playNoise(ctx, start, 0.012, MASTER * 0.25, 3600, 2);
+    playSweep(ctx, start, 196, 392, 0.16, MASTER * 0.16);
+    playArpeggio(ctx, start + 0.04, HERO_NOTES, 0.064, 0.12, MASTER * 0.28);
+    playArpeggio(ctx, start + 0.23, [1046.5, 1318.51], 0.045, 0.08, MASTER * 0.14);
+  }
+
+  window.TodayCardAudio = {
+    playDrawStart,
+    playDealCard,
+    playFlipReveal
+  };
+}());
+  </script>
+  <script>
+/*
+[INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、data.js 的 seeded palette、选项编号与图案数据、audio.js 的抽卡仪式音效、functions/api/cards.js 的 Dify 代理、浏览器语言、用户输入 decision 和当前日期
+[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、视口约束移动优先牌堆、逐张发牌动效、点击/触摸翻牌行为和音效事件
+[POS]: 项目行为层，承接 TodayCard.app.v1 的最小数据真相源，驱动唯一网页但不持有视觉细节
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+*/
+/* ------------------------------
+   数据层: 稳定 seed, 不信裸随机
+------------------------------ */
+const { PALETTES, OPTION_LABELS, GRID_PRESETS } = window.TodayCardData;
+const AUTO_OPTION_COUNT = 4;
+const CARD_BRAND = 'Todaycard.app';
+const DEAL_STAGGER_MS = 110;
+const DEAL_SETTLE_MS = 620;
+const MESSAGES = {
+  zh: {
+    lang: 'zh-CN',
+    decisionPlaceholder: '今天想决定什么？',
+    decisionAria: '今天想决定什么？',
+    fallbackDecision: '今天的决定',
+    drawButton: '抽卡',
+    buildingButton: '发牌中',
+    emptyState: '暂无卡片',
+    answerLabel: '答案',
+    defaultOptions: [
+      '现在做一个最小版本',
+      '先不做，保留精力',
+      '问一个可信的人',
+      '只投入 30 分钟试验'
+    ]
+  },
+  en: {
+    lang: 'en',
+    decisionPlaceholder: 'What do you want to decide today?',
+    decisionAria: 'What do you want to decide today?',
+    fallbackDecision: "today's decision",
+    drawButton: 'Draw',
+    buildingButton: 'Dealing',
+    emptyState: 'No cards',
+    answerLabel: 'Answer',
+    defaultOptions: [
+      'Make the smallest version now',
+      'Pause and save your energy',
+      'Ask one trusted person',
+      'Try it for 30 minutes'
+    ]
+  }
+};
 
 const state = {
   decision: '',
@@ -384,6 +1333,8 @@ const state = {
   revealed: new Set(),
   paletteShift: 0,
   requestId: 0,
+  isDealing: false,
+  dealTimers: [],
   drag: {
     active: false,
     startX: 0,
@@ -396,12 +1347,47 @@ const state = {
 
 const els = {
   decisionInput: document.getElementById('decisionInput'),
-  optionsInput: document.getElementById('optionsInput'),
   buildButton: document.getElementById('buildButton'),
+  buildText: document.querySelector('#buildButton .button-text'),
   deckShell: document.getElementById('deckShell'),
   deck: document.getElementById('deck'),
   emptyState: document.getElementById('emptyState')
 };
+
+const localeKey = resolveLocale();
+const copy = MESSAGES[localeKey];
+
+function resolveLocale() {
+  const language = `${document.documentElement.lang || navigator.language || ''}`.toLowerCase();
+  return language.startsWith('zh') ? 'zh' : 'en';
+}
+
+function t(key) {
+  return copy[key] || MESSAGES.en[key] || key;
+}
+
+function currentDecision() {
+  return els.decisionInput.value.trim() || t('fallbackDecision');
+}
+
+function applyI18n() {
+  document.documentElement.lang = t('lang');
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    node.textContent = t(node.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach((node) => {
+    node.setAttribute('aria-label', t(node.dataset.i18nAriaLabel));
+  });
+  els.decisionInput.placeholder = t('decisionPlaceholder');
+  els.decisionInput.setAttribute('aria-label', t('decisionAria'));
+  if (els.buildText) els.buildText.textContent = t('drawButton');
+}
+
+function playSound(name, detail) {
+  const audio = window.TodayCardAudio;
+  if (!audio || typeof audio[name] !== 'function') return;
+  audio[name](detail);
+}
 
 function hashString(value) {
   let hash = 2166136261;
@@ -427,15 +1413,6 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
-function normalizeOptions(raw) {
-  const options = raw
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  return options.length ? options.slice(0, 8) : [];
-}
-
 function normalizeAnswerList(values) {
   return values
     .map((value) => String(value || '').trim())
@@ -443,9 +1420,27 @@ function normalizeAnswerList(values) {
     .slice(0, AUTO_OPTION_COUNT);
 }
 
+function decisionObject(decision) {
+  return decision
+    .replace(/[?？。！!]/g, '')
+    .replace(/^今天(要不要|想不想|想)?/, '')
+    .replace(/^(推进|推动|做|开始|去|试试)/, '')
+    .trim();
+}
+
 function optionSuggestions(decision) {
   const clean = decision.trim() || '这件事';
-  const object = clean.replace(/[?？。！!]/g, '').replace(/^今天要不要/, '').slice(0, 18) || '这件事';
+  if (clean === t('fallbackDecision')) return t('defaultOptions').slice(0, AUTO_OPTION_COUNT);
+  if (localeKey === 'en') {
+    const object = clean.replace(/[?？。！!]/g, '').slice(0, 28) || t('fallbackDecision');
+    return [
+      `Move ${object} forward now`,
+      'Pause for now',
+      'Ask one person first',
+      'Try it for 30 minutes'
+    ].slice(0, AUTO_OPTION_COUNT);
+  }
+  const object = decisionObject(clean).slice(0, 18) || '这件事';
   return [
     `现在推进${object}`,
     `暂时不做`,
@@ -465,8 +1460,7 @@ async function fetchGeneratedOptions(decision) {
   return normalizeAnswerList(Array.isArray(data.answers) ? data.answers : []);
 }
 
-async function optionsFor(decision, customOptions) {
-  if (customOptions.length) return customOptions;
+async function optionsFor(decision) {
   try {
     const generated = await fetchGeneratedOptions(decision);
     if (generated.length) return generated;
@@ -480,6 +1474,32 @@ function cardSeed(decision, option, index) {
   return hashString(`${decision}\n${option}\n${index + 1}`);
 }
 
+function shuffledIndexes(count, rng) {
+  const indexes = Array.from({ length: count }, (_, index) => index);
+  for (let index = indexes.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(rng() * (index + 1));
+    [indexes[index], indexes[swapIndex]] = [indexes[swapIndex], indexes[index]];
+  }
+  return indexes;
+}
+
+function uniquePaletteIndexes(decision, count) {
+  const rng = createRng(hashString(`${decision}\npalette-deck`));
+  const groups = new Map();
+  PALETTES.forEach((palette, index) => {
+    const family = palette.family || palette.name;
+    if (!groups.has(family)) groups.set(family, []);
+    groups.get(family).push(index);
+  });
+  const families = [...groups.keys()];
+  const familyOrder = shuffledIndexes(families.length, rng);
+  return Array.from({ length: count }, (_, index) => {
+    const family = families[familyOrder[index % familyOrder.length]];
+    const members = groups.get(family);
+    return members[Math.floor(rng() * members.length)];
+  });
+}
+
 function currentDateStamp() {
   const now = new Date();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -489,19 +1509,17 @@ function currentDateStamp() {
 
 function createCards(decision, options) {
   const date = currentDateStamp();
+  const paletteIndexes = uniquePaletteIndexes(decision, options.length);
   return options.map((option, index) => {
     const seed = cardSeed(decision, option, index);
-    const rng = createRng(seed);
-    const paletteIndex = (Math.floor(rng() * PALETTES.length) + index * 3) % PALETTES.length;
-    const signature = SIGNATURES[Math.floor(rng() * SIGNATURES.length)];
     return {
       id: `TC.${String((seed % 100000)).padStart(5, '0')}`,
       index,
       option,
-      signature,
+      choiceLabel: OPTION_LABELS[index] || `Choice ${index + 1}`,
       date,
       seed,
-      paletteIndex,
+      paletteIndex: paletteIndexes[index],
       grid: createGrid(createRng(seed ^ 0x9E3779B9))
     };
   });
@@ -547,42 +1565,70 @@ function gridHtml(grid) {
     .join('');
 }
 
+function solidSymbolHtml(grid) {
+  return grid
+    .map((row, rowIndex) => row
+      .map((on, columnIndex) => {
+        if (!on) return '';
+        return `<span class="symbol-cell" style="--row:${rowIndex + 1};--column:${columnIndex + 1};"></span>`;
+      })
+      .join(''))
+    .join('');
+}
+
 function cardHtml(card) {
   const flipped = state.revealed.has(card.index);
+  const answerSymbol = solidSymbolHtml(card.grid);
   return `
     <article class="card${flipped ? ' is-flipped' : ''}" data-index="${card.index}" aria-label="TodayCard ${card.index + 1}">
-      <div class="card-inner">
-        <div class="stamp-face card-back">
-          <div class="card-top">
-            <span class="card-title">${CARD_BRAND}</span>
-            <span class="card-id">${card.id}</span>
+      <div class="deal-motion">
+        <div class="card-inner">
+          <div class="stamp-face card-back">
+            <div class="card-top">
+              <span class="card-title">${CARD_BRAND}</span>
+              <span class="card-id">${card.id}</span>
+            </div>
+            <div class="grid" aria-hidden="true">${gridHtml(card.grid)}</div>
+            <div class="card-bottom">
+              <span class="card-choice-label">${escapeHtml(card.choiceLabel)}</span>
+              <span class="card-date">${card.date}</span>
+            </div>
           </div>
-          <div class="grid" aria-hidden="true">${gridHtml(card.grid)}</div>
-          <div class="card-bottom">
-            <span class="card-signature">${card.signature}</span>
-            <span class="card-date">${card.date}</span>
-          </div>
-        </div>
-        <div class="stamp-face card-front">
-          <div class="card-top">
-            <span class="card-title">${CARD_BRAND}</span>
-            <span class="card-id">${card.id}</span>
-          </div>
-          <div class="answer-mark" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </div>
-          <div class="answer-copy">
-            <span class="option-label">Answer</span>
-            <p class="answer-text">${escapeHtml(card.option)}</p>
-          </div>
-          <div class="card-bottom">
-            <span class="card-signature">${card.signature}</span>
-            <span class="card-date">${card.date}</span>
+          <div class="stamp-face card-front">
+            <div class="card-top">
+              <span class="card-title">${CARD_BRAND}</span>
+              <span class="card-id">${card.id}</span>
+            </div>
+            <div class="symbol-grid" aria-hidden="true">${answerSymbol}</div>
+            <div class="answer-copy">
+              <span class="option-label">${escapeHtml(t('answerLabel'))}</span>
+              <p class="answer-text">${escapeHtml(card.option)}</p>
+            </div>
+            <div class="card-bottom">
+              <span class="card-choice-label">${escapeHtml(card.choiceLabel)}</span>
+              <span class="card-date">${card.date}</span>
+            </div>
           </div>
         </div>
       </div>
     </article>
   `;
+}
+
+function clearDealTimers() {
+  state.dealTimers.forEach((timer) => window.clearTimeout(timer));
+  state.dealTimers = [];
+  state.isDealing = false;
+  els.deckShell.classList.remove('is-dealing');
+}
+
+function markDealingCard(node) {
+  const index = Number(node.dataset.index);
+  node.classList.add('is-dealing');
+  node.style.setProperty('--deal-delay', `${index * DEAL_STAGGER_MS}ms`);
+  node.addEventListener('animationend', () => {
+    node.classList.remove('is-dealing');
+  }, { once: true });
 }
 
 function escapeHtml(value) {
@@ -594,26 +1640,31 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-function renderCards() {
+function renderCards(options = {}) {
   els.deck.innerHTML = state.cards.map(cardHtml).join('');
   els.emptyState.hidden = state.cards.length > 0;
-  els.deck.querySelectorAll('.card').forEach((node) => {
+  const cardNodes = [...els.deck.querySelectorAll('.card')];
+  cardNodes.forEach((node) => {
     const card = state.cards[Number(node.dataset.index)];
     setCardPalette(node, paletteFor(card));
   });
   layoutCards();
+  if (options.deal) cardNodes.forEach(markDealingCard);
 }
 
 function layoutCards() {
+  const shellWidth = els.deckShell.clientWidth || window.innerWidth;
   const dragOffset = state.drag.active ? state.drag.deltaX / 118 : 0;
-  const spread = window.innerWidth < 520 ? 190 : 250;
+  const compactSpread = clamp(shellWidth * 0.34, 112, 150);
+  const spread = shellWidth < 520 ? compactSpread : 250;
+  const yaw = shellWidth < 520 ? -24 : -30;
   els.deck.querySelectorAll('.card').forEach((node) => {
     const index = Number(node.dataset.index);
     const offset = index - state.focus + dragOffset;
     const distance = Math.abs(offset);
     node.style.setProperty('--x', `${offset * spread}px`);
     node.style.setProperty('--z', `${distance === 0 ? 60 : -distance * 48}px`);
-    node.style.setProperty('--ry', `${offset * -30}deg`);
+    node.style.setProperty('--ry', `${offset * yaw}deg`);
     node.style.setProperty('--rz', `${offset * 1.4}deg`);
     node.style.setProperty('--scale', `${Math.max(0.68, 1 - distance * 0.1)}`);
     node.style.setProperty('--opacity', `${distance > 3 ? 0.18 : Math.max(0.32, 1 - distance * 0.15)}`);
@@ -624,51 +1675,85 @@ function layoutCards() {
 
 function setBuilding(isBuilding) {
   els.buildButton.disabled = isBuilding;
-  els.buildButton.textContent = isBuilding ? BUILDING_LABEL : BUILD_LABEL;
+  els.buildButton.classList.toggle('is-building', isBuilding);
+  els.buildButton.setAttribute('aria-busy', String(isBuilding));
+  els.buildButton.setAttribute('aria-label', isBuilding ? t('buildingButton') : t('drawButton'));
+  if (els.buildText) els.buildText.textContent = isBuilding ? t('buildingButton') : t('drawButton');
+}
+
+function finishDeal(requestId) {
+  if (requestId !== state.requestId) return;
+  state.dealTimers = [];
+  state.isDealing = false;
+  els.deckShell.classList.remove('is-dealing');
+  setBuilding(false);
+}
+
+function startDealSequence(requestId) {
+  clearDealTimers();
+  state.isDealing = true;
+  els.deckShell.classList.add('is-dealing');
+  renderCards({ deal: true });
+
+  state.cards.forEach((card) => {
+    const timer = window.setTimeout(() => {
+      if (requestId === state.requestId) playSound('playDealCard', { index: card.index });
+    }, card.index * DEAL_STAGGER_MS);
+    state.dealTimers.push(timer);
+  });
+
+  const total = Math.max(0, state.cards.length - 1) * DEAL_STAGGER_MS + DEAL_SETTLE_MS;
+  state.dealTimers.push(window.setTimeout(() => finishDeal(requestId), total));
 }
 
 async function rebuild() {
-  const decision = els.decisionInput.value.trim() || '今天要不要推进这个想法';
-  const customOptions = normalizeOptions(els.optionsInput.value);
+  if (els.buildButton.disabled) return;
+  const decision = currentDecision();
   const requestId = state.requestId + 1;
   state.requestId = requestId;
+  clearDealTimers();
   setBuilding(true);
+  playSound('playDrawStart');
+  let didStartDeal = false;
   try {
-    const options = await optionsFor(decision, customOptions);
+    const options = await optionsFor(decision);
     if (requestId !== state.requestId) return;
     state.decision = decision;
     state.cards = createCards(decision, options);
-    state.focus = clamp(state.focus, 0, Math.max(0, state.cards.length - 1));
+    state.focus = 0;
     state.revealed = new Set();
-    renderCards();
+    startDealSequence(requestId);
+    didStartDeal = true;
   } finally {
-    if (requestId === state.requestId) setBuilding(false);
+    if (requestId === state.requestId && !didStartDeal) setBuilding(false);
   }
 }
 
 function renderLocalDeck() {
-  const decision = els.decisionInput.value.trim() || '今天要不要推进这个想法';
+  const decision = currentDecision();
   const options = optionSuggestions(decision);
   state.decision = decision;
   state.cards = createCards(decision, options);
-  state.focus = clamp(state.focus, 0, Math.max(0, state.cards.length - 1));
+  state.focus = 0;
   state.revealed = new Set();
   renderCards();
 }
 
 function moveFocus(delta) {
-  if (!state.cards.length) return;
+  if (!state.cards.length || state.isDealing) return;
   state.focus = clamp(state.focus + delta, 0, state.cards.length - 1);
   layoutCards();
 }
 
 function flipFocused() {
+  if (state.isDealing) return;
   const current = state.cards[state.focus];
   if (!current) return;
   flipCard(current.index);
 }
 
 function activateCard(index) {
+  if (state.isDealing) return;
   if (state.drag.moved) {
     state.drag.moved = false;
     return;
@@ -682,8 +1767,9 @@ function activateCard(index) {
 
 function flipCard(index) {
   const card = state.cards[index];
-  if (!card || state.revealed.has(index)) return;
+  if (!card || state.isDealing || state.revealed.has(index)) return;
   state.revealed.add(index);
+  playSound('playFlipReveal');
   const node = els.deck.querySelector(`.card[data-index="${index}"]`);
   if (node) {
     node.classList.add('is-flipped');
@@ -691,6 +1777,7 @@ function flipCard(index) {
 }
 
 function onPointerDown(event) {
+  if (state.isDealing) return;
   const cardNode = event.target.closest('.card');
   state.drag.active = true;
   state.drag.startX = event.clientX;
@@ -766,6 +1853,7 @@ els.decisionInput.addEventListener('keydown', (event) => {
 });
 window.addEventListener('resize', layoutCards);
 
+applyI18n();
 renderLocalDeck();
   </script>
 </body>
