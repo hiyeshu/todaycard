@@ -79,7 +79,8 @@ Use `assets/todaycard-single.html` when the requested deliverable is a single co
 - It must contain inline CSS and inline JavaScript.
 - It must not reference `styles.css`, `app.js`, or any external runtime.
 - It is a template asset, not the split-source truth.
-- When app behavior changes, update the split source first, then refresh this asset.
+- When page structure, visual rules, interaction, card data, default copy, or frontend API boundaries change, update the split source first, then refresh this asset in the same change.
+- If the split source and this single HTML asset cannot express the same behavior cleanly, stop and ask before choosing a compromise.
 
 ## Interaction
 

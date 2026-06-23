@@ -24,6 +24,8 @@ Treat TodayCard as a tiny decision ritual, not a form builder.
 - Keep the implementation static unless the user explicitly asks for a backend.
 - Use `functions/api/cards.js` as the only Dify API caller; never put Dify keys in browser code.
 - For a single-file request, copy `assets/todaycard-single.html` first, then edit the copy.
+- Any split-source change that affects structure, style, interaction, card data, default copy, or frontend API boundaries must refresh `assets/todaycard-single.html` in the same change.
+- If split-source behavior and the single HTML asset conflict, stop and ask the user which truth wins.
 
 Read `references/todaycard-contract.md` before changing data shape, card semantics, interaction rules, deploy settings, or visual language.
 
@@ -34,9 +36,10 @@ Read `references/todaycard-contract.md` before changing data shape, card semanti
 3. If Dify is enabled, keep it as an answer generator only: return `answers`, then let app.js seed cards locally.
 4. Keep randomness deterministic from `decision + option + index`.
 5. Use controlled palettes and preset 10x10 shapes; never let raw randomness create illegible grids.
-6. When the deliverable must be one HTML file, use `assets/todaycard-single.html` as the starting asset and keep it free of external `link` or `script src` dependencies.
-7. Implement mobile first, then verify desktop hover/click affordance.
-8. Validate with `node --check app.js`, Pages Function tests, or by extracting/checking the inline script for single HTML, plus a 10x10 pattern check and a browser or HTTP smoke test when deployed.
+6. After changing `index.html`, `styles.css`, or `app.js`, mirror the relevant HTML/CSS/JS into `assets/todaycard-single.html` before verification.
+7. When the deliverable must be one HTML file, use `assets/todaycard-single.html` as the starting asset and keep it free of external `link` or `script src` dependencies.
+8. Implement mobile first, then verify desktop hover/click affordance.
+9. Validate with `node --check app.js`, Pages Function tests, or by extracting/checking the inline script for single HTML, plus a 10x10 pattern check and a browser or HTTP smoke test when deployed.
 
 ## Visual Rules
 
