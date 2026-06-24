@@ -1,6 +1,6 @@
 /*
 [INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、data.js 的 seeded palette、选项编号与图案数据、audio.js 的抽卡仪式音效、functions/api/cards.js 的 Dify 代理、浏览器语言、用户输入 decision 和当前日期
-[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、视口约束移动优先牌堆、逐张发牌动效、点击/触摸翻牌行为和音效事件
+[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡和轻震反馈事件
 [POS]: 项目行为层，承接 TodayCard.app.v1 的最小数据真相源，驱动唯一网页但不持有视觉细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -12,6 +12,13 @@ const AUTO_OPTION_COUNT = 4;
 const CARD_BRAND = 'Todaycard.app';
 const DEAL_STAGGER_MS = 110;
 const DEAL_SETTLE_MS = 620;
+const TAP_MOVE_TOLERANCE_PX = 10;
+const SWIPE_THRESHOLD_PX = 44;
+const HAPTICS = {
+  select: 8,
+  swipe: 12,
+  flip: [10, 28, 12]
+};
 const MESSAGES = {
   zh: {
     lang: 'zh-CN',
@@ -108,6 +115,11 @@ function playSound(name, detail) {
   const audio = window.TodayCardAudio;
   if (!audio || typeof audio[name] !== 'function') return;
   audio[name](detail);
+}
+
+function haptic(kind) {
+  if (!navigator.vibrate) return;
+  navigator.vibrate(HAPTICS[kind] || HAPTICS.select);
 }
 
 function hashString(value) {
@@ -383,6 +395,7 @@ function layoutCards() {
     const index = Number(node.dataset.index);
     const offset = index - state.focus + dragOffset;
     const distance = Math.abs(offset);
+    node.classList.toggle('is-focused', distance < 0.5);
     node.style.setProperty('--x', `${offset * spread}px`);
     node.style.setProperty('--z', `${distance === 0 ? 60 : -distance * 48}px`);
     node.style.setProperty('--ry', `${offset * yaw}deg`);
@@ -460,10 +473,17 @@ function renderLocalDeck() {
   renderCards();
 }
 
-function moveFocus(delta) {
+function focusCard(index, feedback = 'select') {
   if (!state.cards.length || state.isDealing) return;
-  state.focus = clamp(state.focus + delta, 0, state.cards.length - 1);
+  const next = clamp(index, 0, state.cards.length - 1);
+  if (next === state.focus) return;
+  state.focus = next;
   layoutCards();
+  haptic(feedback);
+}
+
+function moveFocus(delta, feedback = 'select') {
+  focusCard(state.focus + delta, feedback);
 }
 
 function flipFocused() {
@@ -475,21 +495,33 @@ function flipFocused() {
 
 function activateCard(index) {
   if (state.isDealing) return;
-  if (state.drag.moved) {
-    state.drag.moved = false;
+  if (index !== state.focus) {
+    focusCard(index, 'select');
     return;
   }
-  if (index !== state.focus) {
-    state.focus = index;
-    layoutCards();
+  flipCard(index);
+}
+
+function activateByPosition(clientX) {
+  const current = els.deck.querySelector(`.card[data-index="${state.focus}"]`);
+  if (!current) return;
+  const rect = current.getBoundingClientRect();
+  if (clientX < rect.left) {
+    moveFocus(-1, 'select');
+    return;
   }
-  requestAnimationFrame(() => flipCard(index));
+  if (clientX > rect.right) {
+    moveFocus(1, 'select');
+    return;
+  }
+  flipFocused();
 }
 
 function flipCard(index) {
   const card = state.cards[index];
   if (!card || state.isDealing || state.revealed.has(index)) return;
   state.revealed.add(index);
+  haptic('flip');
   playSound('playFlipReveal');
   const node = els.deck.querySelector(`.card[data-index="${index}"]`);
   if (node) {
@@ -499,6 +531,7 @@ function flipCard(index) {
 
 function onPointerDown(event) {
   if (state.isDealing) return;
+  if (event.cancelable) event.preventDefault();
   const cardNode = event.target.closest('.card');
   state.drag.active = true;
   state.drag.startX = event.clientX;
@@ -512,8 +545,9 @@ function onPointerDown(event) {
 
 function onPointerMove(event) {
   if (!state.drag.active) return;
+  if (event.cancelable) event.preventDefault();
   state.drag.deltaX = event.clientX - state.drag.startX;
-  state.drag.moved = Math.abs(state.drag.deltaX) > 8;
+  state.drag.moved = Math.abs(state.drag.deltaX) > TAP_MOVE_TOLERANCE_PX;
   if (!state.drag.frame) {
     state.drag.frame = requestAnimationFrame(() => {
       state.drag.frame = 0;
@@ -524,7 +558,10 @@ function onPointerMove(event) {
 
 function onPointerUp(event) {
   if (!state.drag.active) return;
-  const steps = Math.round(-state.drag.deltaX / 118);
+  const deltaX = state.drag.deltaX;
+  const isSwipe = Math.abs(deltaX) >= SWIPE_THRESHOLD_PX;
+  const steps = Math.sign(-deltaX) * Math.max(1, Math.round(Math.abs(deltaX) / 118));
+  const wasCancelled = event.type === 'pointercancel';
   state.drag.active = false;
   if (state.drag.frame) {
     cancelAnimationFrame(state.drag.frame);
@@ -536,12 +573,14 @@ function onPointerUp(event) {
   } catch {
     /* releasePointerCapture can already be cleared by the browser */
   }
-  if (state.drag.moved) {
-    moveFocus(steps);
-  } else if (state.drag.cardIndex === null) {
-    flipFocused();
-  } else {
-    activateCard(state.drag.cardIndex);
+  if (!wasCancelled) {
+    if (isSwipe) {
+      moveFocus(steps, 'swipe');
+    } else if (state.drag.cardIndex === null) {
+      activateByPosition(event.clientX);
+    } else {
+      activateCard(state.drag.cardIndex);
+    }
   }
   state.drag.deltaX = 0;
   state.drag.cardIndex = null;

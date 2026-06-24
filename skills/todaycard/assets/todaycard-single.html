@@ -1,6 +1,6 @@
 <!--
 [INPUT]: 依赖 TodayCard split source 的 index.html、styles.css、data.js、audio.js、app.js 和 assets/todaycard.svg 快照
-[OUTPUT]: 对外提供可直接复制运行、带内联 SVG favicon、淡彩灰格背景、视口约束 coverflow、圆框 i18n 输入、青春可爱高饱和 candy palette、Choice A-D 选项编号、16 个具象图案、默认正面 10x10 网格、答案页同源实色符号、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和沉浸 Web Audio 音效的 TodayCard 单文件 HTML 模板资产
+[OUTPUT]: 对外提供可直接复制运行、带内联 SVG favicon、淡彩灰格背景、移动端一屏锁定的 full-bleed coverflow、圆框 i18n 输入、青春可爱高饱和 candy palette、Choice A-D 选项编号、16 个具象图案、默认正面 10x10 网格、答案页同源实色符号、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效、点击选卡/翻牌边界和沉浸 Web Audio 音效的 TodayCard 单文件 HTML 模板资产
 [POS]: skills/todaycard/assets 的成品模板，给 agent 快速创建单文件决策卡页面，不替代仓库源码真相源
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -14,7 +14,7 @@
   <style>
 /*
 [INPUT]: 依赖 index.html 的 DOM 类名和 CSS 变量、getstampstack.vercel.app 的白底 demo 视觉、app.js 的翻牌与发牌状态类
-[OUTPUT]: 对外提供极简移动优先 TodayCard 布局、淡彩灰格背景、视口约束 coverflow、圆角质感牌背、答案正面、默认正面 10x10 网格、答案页同源实色符号、两行答案位、圆框输入控制、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和点击翻牌样式
+[OUTPUT]: 对外提供极简移动优先 TodayCard 布局、淡彩灰格背景、移动端一屏锁定的 full-bleed coverflow、圆角质感牌背、答案正面、默认正面 10x10 网格、答案页同源实色符号、两行答案位、圆框输入控制、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和点击翻牌样式
 [POS]: 项目视觉层，只负责形态、动效和响应式，不拥有 decision 数据、候选生成和随机图案算法
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -176,7 +176,7 @@ button.ghost {
   opacity: var(--opacity);
   pointer-events: auto;
   cursor: pointer;
-  transform: translateY(calc(-20px + var(--lift))) translateX(var(--x)) translateZ(var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));
+  transform: translateY(calc(var(--card-y, -20px) + var(--lift))) translateX(var(--x)) translateZ(var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));
   transform-origin: center;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
@@ -570,22 +570,58 @@ button.ghost {
 }
 
 @media (max-width: 430px) {
+  html,
+  body {
+    height: 100vh;
+    height: 100svh;
+    min-height: 100vh;
+    min-height: 100svh;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body {
+    padding: 0;
+  }
+
   .app {
-    width: min(calc(100vw - 32px), 398px);
-    gap: 22px;
+    width: min(100vw, 430px);
+    height: 100vh;
+    height: 100svh;
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 0;
+    padding: max(54px, calc(env(safe-area-inset-top) + 34px)) 16px max(12px, calc(env(safe-area-inset-bottom) + 10px));
   }
 
   .hero {
     gap: 0;
+    align-self: start;
   }
 
-  .deck-shell {
-    height: clamp(318px, 88vw, 346px);
+  .stage {
+    align-self: stretch;
+    width: 100vw;
+    min-height: 0;
+    display: grid;
+    align-items: center;
+    margin-inline: calc(50% - 50vw);
+    margin-block: 0;
+    padding-block: 16px 22px;
     overflow: hidden;
   }
 
+  .deck-shell {
+    width: 100vw;
+    height: min(100%, clamp(318px, 90vw, 398px));
+    min-height: 0;
+    touch-action: none;
+    overflow: visible;
+  }
+
   .card {
-    width: clamp(202px, 56vw, 220px);
+    --card-y: -8px;
+    width: clamp(194px, min(57vw, 34svh), 226px);
   }
 
   .card-inner {
@@ -618,10 +654,44 @@ button.ghost {
     font-size: 14px;
   }
 
-  .source-footer {
-    margin-top: clamp(70px, 12vh, 112px);
+  .control-panel {
+    align-self: end;
+    margin: 0 auto;
   }
 
+  .source-footer {
+    align-self: end;
+    margin-top: clamp(116px, 17svh, 150px);
+  }
+
+}
+
+@media (max-width: 430px) and (max-height: 700px) {
+  .app {
+    padding-top: max(38px, calc(env(safe-area-inset-top) + 24px));
+    padding-bottom: max(10px, calc(env(safe-area-inset-bottom) + 8px));
+  }
+
+  .stage {
+    padding-block: 10px 14px;
+  }
+
+  .card {
+    --card-y: -4px;
+    width: clamp(184px, min(56vw, 32svh), 206px);
+  }
+
+  .field input {
+    min-height: 60px;
+  }
+
+  #buildButton {
+    min-height: 42px;
+  }
+
+  .source-footer {
+    margin-top: clamp(48px, 9svh, 78px);
+  }
 }
 
 @media (min-width: 860px) {
@@ -1279,7 +1349,7 @@ const GRID_PRESETS = [
   <script>
 /*
 [INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、data.js 的 seeded palette、选项编号与图案数据、audio.js 的抽卡仪式音效、functions/api/cards.js 的 Dify 代理、浏览器语言、用户输入 decision 和当前日期
-[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、视口约束移动优先牌堆、逐张发牌动效、点击/触摸翻牌行为和音效事件
+[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡和轻震反馈事件
 [POS]: 项目行为层，承接 TodayCard.app.v1 的最小数据真相源，驱动唯一网页但不持有视觉细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -1291,6 +1361,13 @@ const AUTO_OPTION_COUNT = 4;
 const CARD_BRAND = 'Todaycard.app';
 const DEAL_STAGGER_MS = 110;
 const DEAL_SETTLE_MS = 620;
+const TAP_MOVE_TOLERANCE_PX = 10;
+const SWIPE_THRESHOLD_PX = 44;
+const HAPTICS = {
+  select: 8,
+  swipe: 12,
+  flip: [10, 28, 12]
+};
 const MESSAGES = {
   zh: {
     lang: 'zh-CN',
@@ -1387,6 +1464,11 @@ function playSound(name, detail) {
   const audio = window.TodayCardAudio;
   if (!audio || typeof audio[name] !== 'function') return;
   audio[name](detail);
+}
+
+function haptic(kind) {
+  if (!navigator.vibrate) return;
+  navigator.vibrate(HAPTICS[kind] || HAPTICS.select);
 }
 
 function hashString(value) {
@@ -1662,6 +1744,7 @@ function layoutCards() {
     const index = Number(node.dataset.index);
     const offset = index - state.focus + dragOffset;
     const distance = Math.abs(offset);
+    node.classList.toggle('is-focused', distance < 0.5);
     node.style.setProperty('--x', `${offset * spread}px`);
     node.style.setProperty('--z', `${distance === 0 ? 60 : -distance * 48}px`);
     node.style.setProperty('--ry', `${offset * yaw}deg`);
@@ -1739,10 +1822,17 @@ function renderLocalDeck() {
   renderCards();
 }
 
-function moveFocus(delta) {
+function focusCard(index, feedback = 'select') {
   if (!state.cards.length || state.isDealing) return;
-  state.focus = clamp(state.focus + delta, 0, state.cards.length - 1);
+  const next = clamp(index, 0, state.cards.length - 1);
+  if (next === state.focus) return;
+  state.focus = next;
   layoutCards();
+  haptic(feedback);
+}
+
+function moveFocus(delta, feedback = 'select') {
+  focusCard(state.focus + delta, feedback);
 }
 
 function flipFocused() {
@@ -1754,21 +1844,33 @@ function flipFocused() {
 
 function activateCard(index) {
   if (state.isDealing) return;
-  if (state.drag.moved) {
-    state.drag.moved = false;
+  if (index !== state.focus) {
+    focusCard(index, 'select');
     return;
   }
-  if (index !== state.focus) {
-    state.focus = index;
-    layoutCards();
+  flipCard(index);
+}
+
+function activateByPosition(clientX) {
+  const current = els.deck.querySelector(`.card[data-index="${state.focus}"]`);
+  if (!current) return;
+  const rect = current.getBoundingClientRect();
+  if (clientX < rect.left) {
+    moveFocus(-1, 'select');
+    return;
   }
-  requestAnimationFrame(() => flipCard(index));
+  if (clientX > rect.right) {
+    moveFocus(1, 'select');
+    return;
+  }
+  flipFocused();
 }
 
 function flipCard(index) {
   const card = state.cards[index];
   if (!card || state.isDealing || state.revealed.has(index)) return;
   state.revealed.add(index);
+  haptic('flip');
   playSound('playFlipReveal');
   const node = els.deck.querySelector(`.card[data-index="${index}"]`);
   if (node) {
@@ -1778,6 +1880,7 @@ function flipCard(index) {
 
 function onPointerDown(event) {
   if (state.isDealing) return;
+  if (event.cancelable) event.preventDefault();
   const cardNode = event.target.closest('.card');
   state.drag.active = true;
   state.drag.startX = event.clientX;
@@ -1791,8 +1894,9 @@ function onPointerDown(event) {
 
 function onPointerMove(event) {
   if (!state.drag.active) return;
+  if (event.cancelable) event.preventDefault();
   state.drag.deltaX = event.clientX - state.drag.startX;
-  state.drag.moved = Math.abs(state.drag.deltaX) > 8;
+  state.drag.moved = Math.abs(state.drag.deltaX) > TAP_MOVE_TOLERANCE_PX;
   if (!state.drag.frame) {
     state.drag.frame = requestAnimationFrame(() => {
       state.drag.frame = 0;
@@ -1803,7 +1907,10 @@ function onPointerMove(event) {
 
 function onPointerUp(event) {
   if (!state.drag.active) return;
-  const steps = Math.round(-state.drag.deltaX / 118);
+  const deltaX = state.drag.deltaX;
+  const isSwipe = Math.abs(deltaX) >= SWIPE_THRESHOLD_PX;
+  const steps = Math.sign(-deltaX) * Math.max(1, Math.round(Math.abs(deltaX) / 118));
+  const wasCancelled = event.type === 'pointercancel';
   state.drag.active = false;
   if (state.drag.frame) {
     cancelAnimationFrame(state.drag.frame);
@@ -1815,12 +1922,14 @@ function onPointerUp(event) {
   } catch {
     /* releasePointerCapture can already be cleared by the browser */
   }
-  if (state.drag.moved) {
-    moveFocus(steps);
-  } else if (state.drag.cardIndex === null) {
-    flipFocused();
-  } else {
-    activateCard(state.drag.cardIndex);
+  if (!wasCancelled) {
+    if (isSwipe) {
+      moveFocus(steps, 'swipe');
+    } else if (state.drag.cardIndex === null) {
+      activateByPosition(event.clientX);
+    } else {
+      activateCard(state.drag.cardIndex);
+    }
   }
   state.drag.deltaX = 0;
   state.drag.cardIndex = null;

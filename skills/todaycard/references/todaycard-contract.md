@@ -103,12 +103,15 @@ Use `assets/todaycard-single.html` when the requested deliverable is a single co
 ## Interaction
 
 - Pointer flow is the click/tap truth source.
+- On mobile, the page must behave as a one-screen app shell: no document scroll, no vertical scrollbar, and no rubber-band handoff from the deck to the page.
+- On mobile, the deck owns touch gestures with `touch-action: none` plus pointer-level default prevention; vertical movement inside the deck must not compete with browser scrolling.
 - Draw button starts the card ritual: play draw-start sound, request/generate answers, render new cards, then deal all cards with a fixed stagger.
 - During dealing, card drag and flip are disabled.
 - Dealing animation must use the `.deal-motion` wrapper; do not animate the outer `.card` coverflow transform.
-- Click a card: focus it and flip it.
-- Click empty deck: flip focused card.
-- Drag beyond threshold: move focus, do not flip.
+- Click/tap the focused card: flip it.
+- Click/tap a non-focused card, or the left/right area outside the focused card: move focus only, do not flip.
+- Drag beyond threshold: move focus, do not flip, and trigger a light haptic vibration when supported.
+- Successful flip should trigger a light haptic vibration when supported.
 - Keyboard: ArrowLeft/ArrowRight move focus, Enter/Space flip.
 - Flip by adding `.is-flipped` to the existing DOM node; do not rerender to fake animation.
 - On mobile WebKit, keep card faces separated with `translateZ` and explicit `-webkit-*` 3D/backface rules so the hidden face cannot leak mirrored text.

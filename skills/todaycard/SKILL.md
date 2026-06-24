@@ -1,6 +1,6 @@
 ---
 name: todaycard
-description: "Build, revise, package, or deploy TodayCard-style decision-card web apps: minimal mobile-first single-page or single-HTML tools where a user enters one decision, options are auto-generated, cards use seeded colors and 10x10 preset backs, the deck deals in like a game, and click/tap flips to the answer. Use when working on TodayCard, todaycard.app, stampstack-inspired cards, option-drawing cards, decision decks, single-file HTML card templates, or the hiyeshu/todaycard repo."
+description: "Build, revise, package, or deploy TodayCard-style decision-card web apps: minimal mobile-first single-page or single-HTML tools where a user enters one decision, options are auto-generated, cards use seeded colors and 10x10 preset backs, the deck deals in like a game, focused-card tap flips to the answer, and side taps select another card. Use when working on TodayCard, todaycard.app, stampstack-inspired cards, option-drawing cards, decision decks, single-file HTML card templates, or the hiyeshu/todaycard repo."
 ---
 
 <!--
@@ -21,7 +21,8 @@ Treat TodayCard as a tiny decision ritual, not a form builder.
 - Show a draggable card stack first; do not make a landing page.
 - Make drawing feel like a small game ritual: draw action, staggered dealing, then flip reveal.
 - Show the 10x10 pattern as the card back.
-- Reveal the answer only after click/tap flips the whole card.
+- Reveal the answer only after click/tap on the currently focused card flips the whole card.
+- Treat side cards and current-card outside areas as selection controls, not flip controls.
 - Keep draw/deal/flip sounds in the Web Audio layer, not in card data.
 - Keep the implementation static unless the user explicitly asks for a backend.
 - Use `functions/api/cards.js` as the only Dify API caller; never put Dify keys in browser code.
@@ -46,7 +47,8 @@ Read `references/todaycard-contract.md` before changing data shape, card semanti
 ## Visual Rules
 
 - Use a minimal white interface with subtle gray grid lines and the card stack as the primary screen.
-- Keep controls below the deck and sparse; put a compact textless round game-like draw button at the right edge of the decision input.
+- Keep controls below the deck and sparse; put a compact text game-like draw button at the right edge of the decision input.
+- On mobile, lock the page into a safe-area aware one-screen app shell; keep the deck full-bleed, prevent document scrolling, and let the deck own touch gestures so swiping and flipping do not fight browser scroll.
 - Avoid explanatory in-app copy and helper buttons for actions that direct manipulation can handle.
 - Card backs may use brand, id, fixed `Choice A-D` labels, and `MM/DD` date.
 - Card fronts carry the revealed answer.
