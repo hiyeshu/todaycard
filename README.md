@@ -1,20 +1,11 @@
 <p align="center">
-  <img alt="TodayCard product preview" src="./assets/og.png">
-</p>
-
-<p align="center">
   <img alt="TodayCard favicon" src="./assets/todaycard.svg" width="72" height="72">
 </p>
 
 <h1 align="center">TodayCard</h1>
 
 <p align="center">
-  <a href="https://todaycard.app/"><img alt="site todaycard.app" src="https://shieldcn.dev/badge/site-todaycard.app-22c55e.svg?variant=outline&statusDot=true"></a>
-  <img alt="cards 4" src="https://shieldcn.dev/badge/cards-4-57b1ff.svg?variant=secondary">
-  <img alt="grid 10x10" src="https://shieldcn.dev/badge/grid-10x10-8b5cf6.svg?variant=secondary">
-  <img alt="patterns 16" src="https://shieldcn.dev/badge/patterns-16-ff6b8a.svg?variant=secondary">
-  <img alt="Dify optional" src="https://shieldcn.dev/badge/Dify-optional-2fc9b6.svg?variant=secondary">
-  <img alt="single HTML" src="https://shieldcn.dev/badge/single%20HTML-ready-f97316.svg?variant=secondary">
+  <img alt="TodayCard product preview" src="./assets/og.png">
 </p>
 
 TodayCard 是一个极简 AI 决策卡片应用。用户只输入一个问题，系统生成 4 张可拖拽、可翻开的 seeded cards，把犹豫压缩成几个能行动的选择。
