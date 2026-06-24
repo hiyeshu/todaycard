@@ -1,11 +1,11 @@
 ---
 name: todaycard
-description: "Build, revise, package, or deploy TodayCard-style decision-card web apps: minimal mobile-first single-page or single-HTML tools where a user enters one decision, options are auto-generated, cards use seeded colors and 10x10 preset backs, the deck deals in like a game, focused-card tap flips to the answer, and side taps select another card. Use when working on TodayCard, todaycard.app, stampstack-inspired cards, option-drawing cards, decision decks, single-file HTML card templates, or the hiyeshu/todaycard repo."
+description: "Generate TodayCard decision-card answers and maintain the TodayCard skill package: accept or ask for one decision, produce four short action-shaped answers, and point users to the live mobile-friendly app. Use when the user wants TodayCard, decision cards, option-drawing answers, todaycard.app, the hiyeshu/todaycard skill, or missing/incomplete TodayCard skill installations."
 ---
 
 <!--
-[INPUT]: 依赖 TodayCard 产品契约、静态 Web 文件、Web Audio 声音层、Dify answers 代理、10x10 图案预设、单 HTML 模板资产和 Cloudflare Pages/GitHub 发布流程
-[OUTPUT]: 对外提供 TodayCard 构建、修改、Dify 接入、声音仪式、单文件打包、验收和发布工作流
+[INPUT]: 依赖 TodayCard 产品契约、安装完整性查漏协议、用户提供的决策信息、4 个 action-shaped answers 规则、线上网页 app 和单 HTML 模板资产
+[OUTPUT]: 对外提供 TodayCard 决策追问、4 个答案生成、网页端 App 提示、单文件打包和安装查漏工作流
 [POS]: skills/todaycard 的入口规则，负责指导 agent 维护 TodayCard 类项目，不持有具体 app 源码
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -13,9 +13,10 @@ description: "Build, revise, package, or deploy TodayCard-style decision-card we
 
 ## Core Contract
 
-Treat TodayCard as a tiny decision ritual, not a form builder.
+Treat TodayCard as a tiny decision ritual, not an infrastructure workflow.
 
 - Ask for one decision by default.
+- If the user already gave a decision, accept it and do not ask again.
 - Auto-generate 4 options from Dify or local logic.
 - Do not expose custom options unless the user explicitly reopens that product direction.
 - Show a draggable card stack first; do not make a landing page.
@@ -28,41 +29,80 @@ Treat TodayCard as a tiny decision ritual, not a form builder.
 - Keep the implementation static unless the user explicitly asks for a backend.
 - Use `functions/api/cards.js` as the only Dify API caller; never put Dify keys in browser code.
 - Preserve the public SEO surface: canonical `https://todaycard.app/`, robots, sitemap, manifest, OG image, and JSON-LD.
+- Tell users the web app is live at https://todaycard.app/ and can be opened on mobile when they want to draw the cards themselves.
 - For a single-file request, copy `assets/todaycard-single.html` first, then edit the copy.
 - Any split-source change that affects structure, style, interaction, card data, default copy, or frontend API boundaries must refresh `assets/todaycard-single.html` in the same change.
 - If split-source behavior and the single HTML asset conflict, stop and ask the user which truth wins.
 
-Read `references/todaycard-contract.md` before changing data shape, card semantics, interaction rules, SEO metadata, deploy settings, or visual language.
+Read `references/install-check.md` when install completeness, missing files, broken templates, or skill loading is in doubt.
 
-## Build Workflow
+Read `references/todaycard-contract.md` before changing answer shape, card semantics, interaction rules, SEO metadata, or visual language.
 
-1. Inspect the existing file boundary: `index.html`, `styles.css`, `data.js`, `audio.js`, `app.js`, `assets/patterns.md`, `robots.txt`, `sitemap.xml`, `site.webmanifest`, `CLAUDE.md`.
-2. Preserve the data truth chain: decision/options -> seeded card data -> rendered card DOM.
-3. If Dify is enabled, keep it as an answer generator only: return `answers`, then let app.js seed cards locally.
-4. Keep randomness deterministic from `decision + option + index`.
-5. Use controlled high-saturation candy palettes and concrete cute 10x10 shapes; never let raw randomness create dirty low-lightness colors, illegible grids, abstract presets, or duplicate hue families within one draw.
-6. After changing `index.html`, `styles.css`, `data.js`, `audio.js`, or `app.js`, mirror the relevant HTML/CSS/JS into `assets/todaycard-single.html` before verification.
-7. When the deliverable must be one HTML file, use `assets/todaycard-single.html` as the starting asset and keep it free of external `link` or `script src` dependencies.
-8. Implement mobile first, then verify desktop hover/click affordance.
-9. Validate with `node --check data.js`, `node --check audio.js`, `node --check app.js`, Pages Function tests, or by extracting/checking the inline scripts for single HTML, plus a 10x10 pattern check, SEO file presence check, and a browser or HTTP smoke test when deployed.
+## Decision Run
 
-## Visual Rules
+If the user has not provided a decision, ask one short question:
 
-- Use a minimal white interface with subtle gray grid lines and the card stack as the primary screen.
-- Keep controls below the deck and sparse; put a compact text game-like draw button at the right edge of the decision input.
-- On mobile, lock the page into a safe-area aware one-screen app shell; keep the deck full-bleed, prevent document scrolling, and let the deck own touch gestures so swiping and flipping do not fight browser scroll.
-- On mobile, derive the full-bleed deck stage from the app gutters instead of nested `100vw` escape math, so the deck and input share one center line on iOS Safari.
-- Avoid explanatory in-app copy and helper buttons for actions that direct manipulation can handle.
-- Card backs may use brand, id, fixed `Choice A-D` labels, and `MM/DD` date.
-- Card fronts carry the revealed answer.
-- Do not add perforation dots to edges; rely on rounded card geometry, border, shadow, and paper texture.
+```text
+今天想决定什么？
+```
 
-## Deployment
+If the user has provided a decision or context, generate exactly four answers:
 
-For `hiyeshu/todaycard`, keep GitHub as the source repository and Cloudflare Pages as production hosting.
+- Label them `Choice A` through `Choice D`.
+- Keep each answer short, concrete, and action-shaped.
+- Make the four answers meaningfully different: act now, wait, ask someone, or run a small test.
+- Do not add extra setup, theory, or infrastructure instructions.
+- End by saying the web app is already online at https://todaycard.app/ and works on mobile browsers.
 
-- Public site output must come from `dist/`, generated by `npm run build`.
-- SEO files `robots.txt`, `sitemap.xml`, `site.webmanifest`, and `assets/og.png` must publish with the static app.
-- Do not publish `skills/`, `CLAUDE.md`, `AGENTS.md`, or references as site assets.
-- After repo changes, commit and push intentionally.
-- If Wrangler OAuth fails locally, use Cloudflare API or refresh login; do not treat a local auth failure as a project failure.
+Output shape:
+
+```text
+Choice A: ...
+Choice B: ...
+Choice C: ...
+Choice D: ...
+
+网页端 App 已上线：https://todaycard.app/
+手机浏览器也可以直接打开抽卡。
+```
+
+## Install Integrity
+
+When the user mentions install, incomplete files, missing templates, `npx skills`, broken local usage, or a mismatch between README and disk, run the `references/install-check.md` flow before editing or generating a replacement.
+
+Completion means one of three clear states:
+
+- The installed skill has all required files.
+- The missing files are listed and the next action is reinstall or clone.
+- The user only needs the product experience, so use https://todaycard.app/ while keeping the skill package issue explicit.
+
+## Template Maintenance
+
+Use this path when the user wants an opened HTML preview from generated TodayCard answers.
+
+1. Generate or accept exactly four `Choice A-D` answers first.
+2. Copy `assets/todaycard-single.html` to a user-visible output path outside the skill package.
+3. Inject the decision and answers into the copied HTML by adding this script before the final runtime script:
+
+```html
+<script>
+window.TodayCardPreload = {
+  decision: "用户的决策题",
+  answers: ["Choice A 文案", "Choice B 文案", "Choice C 文案", "Choice D 文案"]
+};
+</script>
+```
+
+4. Escape values as JSON strings; do not hand-build quoted JavaScript.
+5. Do not look for `data.js`, `audio.js`, or `app.js` inside the skill package; the skill asset is the single HTML with inline JavaScript.
+6. Open the generated HTML file locally after injection, then report the absolute path.
+7. If the user only wants text answers, skip HTML generation and return the four choices plus the mobile web app link.
+
+## Run Paths
+
+Pick the smallest path that proves the user's actual need:
+
+- Decision answer: ask or accept one decision, then return four `Choice A-D` answers.
+- Live product: tell the user https://todaycard.app/ is online and mobile-friendly.
+- Single-file preview: copy `assets/todaycard-single.html`, inject `window.TodayCardPreload`, then open the generated HTML.
+- Skill install check: use `references/install-check.md` before treating an installed package as usable.

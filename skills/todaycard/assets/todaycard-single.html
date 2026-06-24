@@ -1,6 +1,6 @@
 <!--
-[INPUT]: 依赖 TodayCard split source 的 index.html、styles.css、data.js、audio.js、app.js、assets/todaycard.svg 快照和 todaycard.app 公开 SEO 地址
-[OUTPUT]: 对外提供可直接复制运行、带 SEO/OG/JSON-LD 元信息、内联 SVG favicon、淡彩灰格背景、移动端一屏锁定且与输入同轴的循环 full-bleed coverflow、圆框 i18n 输入、青春可爱高饱和 candy palette、Choice A-D 选项编号、16 个具象图案、默认正面 10x10 网格、答案页同源实色符号、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效、点击选卡/翻牌边界和沉浸 Web Audio 音效的 TodayCard 单文件 HTML 模板资产
+[INPUT]: 依赖 TodayCard 产品快照、可选 window.TodayCardPreload 预注入数据和 todaycard.app 公开 SEO 地址
+[OUTPUT]: 对外提供可直接复制运行、可预注入 decision/answers、带 SEO/OG/JSON-LD 元信息、内联 SVG favicon、淡彩灰格背景、移动端一屏锁定且与输入同轴的循环 full-bleed coverflow、圆框 i18n 输入、青春可爱高饱和 candy palette、Choice A-D 选项编号、16 个具象图案、默认正面 10x10 网格、答案页同源实色符号、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效、点击选卡/翻牌边界和沉浸 Web Audio 音效的 TodayCard 单文件 HTML 模板资产
 [POS]: skills/todaycard/assets 的成品模板，给 agent 快速创建单文件决策卡页面，不替代仓库源码真相源
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -59,7 +59,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI0MCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIiByeD0iNDUiIGZpbGw9IiM1N0IxRkYiLz4KPHJlY3QgeD0iOSIgeT0iOSIgd2lkdGg9IjIyMiIgaGVpZ2h0PSIyMjIiIHJ4PSIzOCIgZmlsbD0iI0ZGRkVGRiIvPgo8cmVjdCB4PSIzMiIgeT0iNDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiM1N0IxRkYiLz4KPHJlY3QgeD0iNjgiIHk9IjQwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjNTdCMUZGIi8+CjxyZWN0IHg9IjEwNSIgeT0iNDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiM1N0IxRkYiLz4KPHJlY3QgeD0iMTA1IiB5PSI4MyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iIzU3QjFGRiIvPgo8cmVjdCB4PSI2OCIgeT0iODMiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNFRkVFRjgiLz4KPHJlY3QgeD0iMzEiIHk9IjgzIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE3OSIgeT0iODMiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNFRkVFRjgiLz4KPHJlY3QgeD0iNjgiIHk9IjEyNyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iI0VGRUVGOCIvPgo8cmVjdCB4PSIzMSIgeT0iMTI3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE0MiIgeT0iODMiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiNFRkVFRjgiLz4KPHJlY3QgeD0iNjgiIHk9IjE3MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iI0VGRUVGOCIvPgo8cmVjdCB4PSIzMSIgeT0iMTcwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjEwNSIgeT0iMTI3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjNTdCMUZGIi8+CjxyZWN0IHg9IjE3OSIgeT0iMTI3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE0MiIgeT0iMTI3IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjEwNSIgeT0iMTcwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjNTdCMUZGIi8+CjxyZWN0IHg9IjE3OSIgeT0iMTcwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE0MiIgeT0iMTcwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI2IiBmaWxsPSIjRUZFRUY4Ii8+CjxyZWN0IHg9IjE0MiIgeT0iNDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgcng9IjYiIGZpbGw9IiM1N0IxRkYiLz4KPHJlY3QgeD0iMTc4IiB5PSI0MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiByeD0iNiIgZmlsbD0iIzU3QjFGRiIvPgo8L3N2Zz4K">
   <style>
 /*
-[INPUT]: 依赖 index.html 的 DOM 类名和 CSS 变量、getstampstack.vercel.app 的白底 demo 视觉、app.js 的翻牌与发牌状态类
+[INPUT]: 依赖内联 DOM 类名和 CSS 变量、getstampstack.vercel.app 的白底 demo 视觉、内联运行时的翻牌与发牌状态类
 [OUTPUT]: 对外提供极简移动优先 TodayCard 布局、淡彩灰格背景、移动端一屏锁定且与输入同轴的 full-bleed coverflow、圆角质感牌背、答案正面、默认正面 10x10 网格、答案页同源实色符号、两行答案位、圆框输入控制、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和点击翻牌样式
 [POS]: 项目视觉层，只负责形态、动效和响应式，不拥有 decision 数据、候选生成和随机图案算法
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -792,7 +792,7 @@ button.ghost {
 
   <script>
 /*
-[INPUT]: 依赖 TodayCard 的青春可爱高饱和 candy palette、具象可爱 10x10 grid 契约和 app.js 的运行时消费
+[INPUT]: 依赖 TodayCard 的青春可爱高饱和 candy palette、具象可爱 10x10 grid 契约和内联运行时消费
 [OUTPUT]: 对外提供 window.TodayCardData，包含带 family 的 PALETTES、OPTION_LABELS、GRID_PRESETS 三个稳定数据源
 [POS]: 项目数据层，只保存可扩展的静态 palette、选项编号和图案预设，不拥有 DOM、交互、音效或 Dify 行为
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -1260,7 +1260,7 @@ const GRID_PRESETS = [
   </script>
   <script>
 /*
-[INPUT]: 依赖浏览器 Web Audio API 和 app.js 传入的抽卡、发牌、滑卡、翻牌事件
+[INPUT]: 依赖浏览器 Web Audio API 和内联运行时传入的抽卡、发牌、滑卡、翻牌事件
 [OUTPUT]: 对外提供 window.TodayCardAudio.playDrawStart、playDealCard、playDeckShift、playFlipReveal 四个 8-bit 声音入口
 [POS]: 项目声音层，只合成抽卡仪式音效，不拥有卡片数据、DOM 结构和视觉状态
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -1406,8 +1406,8 @@ const GRID_PRESETS = [
   </script>
   <script>
 /*
-[INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、data.js 的 seeded palette、选项编号与图案数据、audio.js 的抽卡/发牌/滑卡/翻牌音效、functions/api/cards.js 的 Dify 代理、浏览器语言、用户输入 decision 和当前日期
-[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定循环移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡、切牌音效和轻震反馈事件
+[INPUT]: 依赖内联控件节点、状态类、seeded palette、选项编号与图案数据、抽卡/发牌/滑卡/翻牌音效、可选 window.TodayCardPreload、Dify 代理、浏览器语言、用户输入 decision 和当前日期
+[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、预注入/Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定循环移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡、切牌音效和轻震反馈事件
 [POS]: 项目行为层，承接 TodayCard.app.v1 的最小数据真相源，驱动唯一网页但不持有视觉细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -1491,6 +1491,11 @@ const els = {
 
 const localeKey = resolveLocale();
 const copy = MESSAGES[localeKey];
+const rawPreload = window.TodayCardPreload && typeof window.TodayCardPreload === 'object'
+  ? window.TodayCardPreload
+  : {};
+const PRELOADED_DECISION = String(rawPreload.decision || '').trim();
+const PRELOADED_OPTIONS = normalizePreloadOptions(rawPreload.answers || rawPreload.options);
 
 function resolveLocale() {
   const language = `${document.documentElement.lang || navigator.language || ''}`.toLowerCase();
@@ -1501,8 +1506,16 @@ function t(key) {
   return copy[key] || MESSAGES.en[key] || key;
 }
 
+function normalizePreloadOptions(values) {
+  if (!Array.isArray(values)) return [];
+  return values
+    .map((value) => String(value || '').trim())
+    .filter(Boolean)
+    .slice(0, AUTO_OPTION_COUNT);
+}
+
 function currentDecision() {
-  return els.decisionInput.value.trim() || t('fallbackDecision');
+  return els.decisionInput.value.trim() || PRELOADED_DECISION || t('fallbackDecision');
 }
 
 function applyI18n() {
@@ -1515,6 +1528,7 @@ function applyI18n() {
   });
   els.decisionInput.placeholder = t('decisionPlaceholder');
   els.decisionInput.setAttribute('aria-label', t('decisionAria'));
+  if (!els.decisionInput.value && PRELOADED_DECISION) els.decisionInput.value = PRELOADED_DECISION;
   if (els.buildText) els.buildText.textContent = t('drawButton');
 }
 
@@ -1603,6 +1617,12 @@ function optionSuggestions(decision) {
   ].slice(0, AUTO_OPTION_COUNT);
 }
 
+function preloadedOptionsFor(decision) {
+  if (!PRELOADED_OPTIONS.length) return null;
+  if (PRELOADED_DECISION && decision !== PRELOADED_DECISION) return null;
+  return PRELOADED_OPTIONS;
+}
+
 async function fetchGeneratedOptions(decision) {
   const response = await fetch('/api/cards', {
     method: 'POST',
@@ -1615,6 +1635,8 @@ async function fetchGeneratedOptions(decision) {
 }
 
 async function optionsFor(decision) {
+  const preloaded = preloadedOptionsFor(decision);
+  if (preloaded) return preloaded;
   try {
     const generated = await fetchGeneratedOptions(decision);
     if (generated.length) return generated;
@@ -1887,7 +1909,7 @@ async function rebuild() {
 
 function renderLocalDeck() {
   const decision = currentDecision();
-  const options = optionSuggestions(decision);
+  const options = preloadedOptionsFor(decision) || optionSuggestions(decision);
   state.decision = decision;
   state.cards = createCards(decision, options);
   state.focus = 0;

@@ -1,5 +1,5 @@
 # skills/
-> L2 | 父级: /Users/yeshu/Desktop/cardtoday/CLAUDE.md
+> L2 | 父级: /Users/gaoding/Desktop/project-0622/todaycard/CLAUDE.md
 
 成员清单
 todaycard/: TodayCard Agent skill 叶子目录，包含 `SKILL.md`、UI 元数据、可复制资产和细节契约。

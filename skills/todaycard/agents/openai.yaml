@@ -1,4 +1,4 @@
 interface:
   display_name: "TodayCard"
-  short_description: "Build minimal or single-HTML decision-card apps."
-  default_prompt: "Use $todaycard to create, package, or improve a TodayCard-style decision card page."
+  short_description: "Turn one decision into four card answers."
+  default_prompt: "Use $todaycard to turn my decision into four TodayCard answers and point me to the mobile web app."

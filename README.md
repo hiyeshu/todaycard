@@ -65,13 +65,25 @@ npm run build
 skills/todaycard/
 ```
 
+安装:
+
+```bash
+npx skills add hiyeshu/todaycard
+```
+
 本地检查:
 
 ```bash
 npx skills@latest add . --list
 ```
 
-目标是只发现一个 `todaycard` skill。单文件交付从 `skills/todaycard/assets/todaycard-single.html` 复制，不能反向替代 split source。
+目标是只发现一个 `todaycard` skill。安装后若怀疑缺文件，按 `skills/todaycard/references/install-check.md` 检查 `SKILL.md`、`agents/openai.yaml`、`assets/todaycard-single.html` 和 `references/*` 是否齐全。
+
+运行 skill 时，它接受用户给出的决策题，或先问一句“今天想决定什么？”，然后生成 `Choice A-D` 四个短答案。
+
+生成答案后，告诉用户网页端 App 已上线: [todaycard.app](https://todaycard.app/)。手机浏览器也可以直接打开抽卡。
+
+需要本地预览时，复制 `skills/todaycard/assets/todaycard-single.html`，把决策题和四个答案注入 `window.TodayCardPreload`，然后打开生成的 HTML。skill 包里没有独立的 `data.js`、`audio.js` 或 `app.js`，这些逻辑都内联在单 HTML 里。
 
 ## 目录结构
 

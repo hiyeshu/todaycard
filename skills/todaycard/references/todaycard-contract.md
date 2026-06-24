@@ -1,7 +1,7 @@
 <!--
-[INPUT]: 依赖 TodayCard app 源码、audio.js 声音层、functions/api/cards.js Dify 代理、assets/patterns.md 图案规则、assets/og.png 社交预览图、todaycard-single.html 模板资产和 todaycard.app 发布约束
-[OUTPUT]: 对外提供 TodayCard 数据、Dify answers、视觉、交互、声音、SEO 公开元信息、单文件模板、验证和部署契约
-[POS]: skills/todaycard 的细节参考，供需要修改实现或发布流程时读取
+[INPUT]: 依赖用户提供的决策信息、TodayCard 产品规则、内联声音层、Dify answers 代理语义、assets/patterns.md 图案规则、assets/og.png 社交预览图、todaycard-single.html 模板资产、install-check.md 安装查漏协议和 todaycard.app 线上入口
+[OUTPUT]: 对外提供 TodayCard 4 个答案生成规则、网页端 App 提示、数据、Dify answers、视觉、交互、声音、SEO 公开元信息、单文件模板和安装完整性契约
+[POS]: skills/todaycard 的细节参考，供需要运行 skill、生成答案或维护模板时读取
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
 # TodayCard Contract
@@ -28,6 +28,23 @@ Default options should stay action-shaped:
 
 Dify-generated options must also stay action-shaped. The workflow should return a structured `answers` array with exactly four short strings.
 
+## Skill Run
+
+When the skill itself is run, it should behave like a product ritual:
+
+1. Accept the decision or context the user already provided.
+2. If no decision is present, ask only: `今天想决定什么？`
+3. Generate exactly four answers labeled `Choice A-D`.
+4. Keep answers short, concrete, and action-shaped.
+5. End with the live app note: `网页端 App 已上线：https://todaycard.app/，手机浏览器也可以直接打开抽卡。`
+
+The four answers should cover different useful directions:
+
+- act now
+- wait or decline
+- ask someone
+- run a small test
+
 ## Data
 
 Card data owns:
@@ -45,7 +62,7 @@ Seed source is `decision + option + index`. Random-looking output must be reprod
 
 ## Palette
 
-`data.js` owns the palette pool.
+The card data layer owns the palette pool.
 
 - Palettes should stay youthful, cute, high-saturation candy colors: clean enough to feel light, with mark/frame colors boosted roughly 20% beyond the previous vivid palette while the white paper face keeps the interface calm.
 - Low-lightness, dirty, muddy, bronze, clay, or grayish colors do not belong in the palette.
@@ -88,18 +105,24 @@ Grid is always 10x10.
 
 Use `assets/patterns.md` as the copyable preset source.
 
-`data.js` `GRID_PRESETS` must stay in sync with `assets/patterns.md`.
+`GRID_PRESETS` in the source or single HTML template must stay in sync with `assets/patterns.md`.
 
 ## SEO
 
 The public product URL is `https://todaycard.app/`.
 
-- `index.html` owns title, description, canonical, hreflang, robots meta, Open Graph, Twitter Card, manifest link, and JSON-LD.
+- The public page owns title, description, canonical, hreflang, robots meta, Open Graph, Twitter Card, manifest link, and JSON-LD.
 - `assets/og.png` owns the 1200x630 imagegen social preview image.
 - `robots.txt` must allow the public site and point to `https://todaycard.app/sitemap.xml`.
 - `sitemap.xml` must list only the canonical homepage until real additional public pages exist.
 - `site.webmanifest` must keep the product name, theme color, and SVG icon aligned with the head metadata.
 - `skills/todaycard/assets/todaycard-single.html` must carry equivalent SEO metadata for the TodayCard template without external CSS or JavaScript.
+
+## Run Entry
+
+`https://todaycard.app/` is the production app path. Use it when the user wants to try TodayCard, share it, or compare live behavior.
+
+This live path does not prove a local skill install is complete. If install files, templates, or package paths are in doubt, run `install-check.md` first.
 
 ## Single HTML
 
@@ -107,10 +130,12 @@ Use `assets/todaycard-single.html` when the requested deliverable is a single co
 
 - It must contain inline CSS and inline JavaScript.
 - It must not reference `styles.css`, `audio.js`, `app.js`, or any external runtime.
+- It accepts optional `window.TodayCardPreload = { decision, answers }` before the final runtime script.
+- A generated preview should copy the template, inject `TodayCardPreload`, then open the copied HTML file.
 - It may reference `https://todaycard.app/` canonical, manifest, and social image metadata because those are publication hints, not runtime dependencies.
 - It is a template asset, not the split-source truth.
-- When page structure, visual rules, interaction, card data, default copy, SEO metadata, or frontend API boundaries change, update the split source first, then refresh this asset in the same change.
-- If the split source and this single HTML asset cannot express the same behavior cleanly, stop and ask before choosing a compromise.
+- When page structure, visual rules, interaction, card data, default copy, SEO metadata, or frontend API boundaries change, keep the single HTML asset behavior aligned.
+- If the source page and this single HTML asset cannot express the same behavior cleanly, stop and ask before choosing a compromise.
 
 ## Interaction
 
@@ -132,30 +157,19 @@ Use `assets/todaycard-single.html` when the requested deliverable is a single co
 
 ## Sound
 
-`audio.js` owns all Web Audio synthesis.
+The inline sound layer owns all Web Audio synthesis.
 
 - Draw start: short 8-bit charge.
 - Deal card: paper snap plus arcade tick, one per card.
 - Deck shift: short paper tick plus tiny pitch sweep.
 - Flip reveal: Hero Moment arpeggio plus sparkle tail.
 
-`app.js` may trigger sound events, but sound must not enter card data, seeds, Dify payloads, or render HTML.
+The inline behavior layer may trigger sound events, but sound must not enter card data, seeds, Dify payloads, or render HTML.
 
-## Deployment
+## Install Integrity
 
-The repository may contain skill and architecture files, but the public site should not.
+Use `install-check.md` for any TodayCard skill install or missing-file concern.
 
-Use `npm run build` to copy only these files into `dist/`:
-
-- `index.html`
-- `styles.css`
-- `data.js`
-- `audio.js`
-- `app.js`
-- `robots.txt`
-- `sitemap.xml`
-- `site.webmanifest`
-- `assets/todaycard.svg`
-- `assets/og.png`
-
-Cloudflare Pages should publish `dist`.
+- `npx skills@latest add . --list` should find exactly one skill: `todaycard`.
+- A usable skill package must include `SKILL.md`, `agents/openai.yaml`, `assets/patterns.md`, `assets/todaycard-single.html`, `references/install-check.md`, and `references/todaycard-contract.md`.
+- Missing machine assets are fixed by reinstalling, cloning, or syncing from GitHub, not by inventing placeholders.
