@@ -1,16 +1,21 @@
 <p align="center">
-  <img alt="TodayCard" src="https://shieldcn.dev/header/gradient.svg?title=TodayCard&subtitle=AI%20decision%20cards&size=wide&align=center&accent=ff6bcb">
+  <img alt="TodayCard product preview" src="./assets/og.png">
 </p>
 
 <p align="center">
-  <a href="https://todaycard.app/"><img alt="site live" src="https://shieldcn.dev/badge/site-live-22c55e.svg?variant=outline&logo=safari"></a>
-  <a href="https://github.com/hiyeshu/todaycard"><img alt="GitHub stars" src="https://shieldcn.dev/github/hiyeshu/todaycard/stars.svg?variant=secondary&logo=github"></a>
-  <img alt="stack web" src="https://shieldcn.dev/badge/stack-web-f59e0b.svg?variant=secondary">
-  <img alt="host pages" src="https://shieldcn.dev/badge/host-pages-f97316.svg?variant=secondary&logo=cloudflare">
-  <img alt="skill ready" src="https://shieldcn.dev/badge/skill-ready-8b5cf6.svg?variant=secondary">
+  <img alt="TodayCard favicon" src="./assets/todaycard.svg" width="72" height="72">
 </p>
 
-# TodayCard
+<h1 align="center">TodayCard</h1>
+
+<p align="center">
+  <a href="https://todaycard.app/"><img alt="site todaycard.app" src="https://shieldcn.dev/badge/site-todaycard.app-22c55e.svg?variant=outline&statusDot=true"></a>
+  <img alt="cards 4" src="https://shieldcn.dev/badge/cards-4-57b1ff.svg?variant=secondary">
+  <img alt="grid 10x10" src="https://shieldcn.dev/badge/grid-10x10-8b5cf6.svg?variant=secondary">
+  <img alt="patterns 16" src="https://shieldcn.dev/badge/patterns-16-ff6b8a.svg?variant=secondary">
+  <img alt="Dify optional" src="https://shieldcn.dev/badge/Dify-optional-2fc9b6.svg?variant=secondary">
+  <img alt="single HTML" src="https://shieldcn.dev/badge/single%20HTML-ready-f97316.svg?variant=secondary">
+</p>
 
 TodayCard 是一个极简 AI 决策卡片应用。用户只输入一个问题，系统生成 4 张可拖拽、可翻开的 seeded cards，把犹豫压缩成几个能行动的选择。
 
@@ -57,7 +62,7 @@ Cloudflare Pages 发布 `dist/`，Functions 从仓库根 `functions/` 读取。
 npm run build
 ```
 
-只允许公开这些站点资产: `index.html`、`styles.css`、`data.js`、`audio.js`、`app.js`、`robots.txt`、`sitemap.xml`、`site.webmanifest`、`assets/todaycard.svg`、`assets/og.svg`。
+只允许公开这些站点资产: `index.html`、`styles.css`、`data.js`、`audio.js`、`app.js`、`robots.txt`、`sitemap.xml`、`site.webmanifest`、`assets/todaycard.svg`、`assets/og.png`。
 
 `skills/`、`CLAUDE.md`、`AGENTS.md`、references 和其他 agent 文档只进仓库，不进站点。
 

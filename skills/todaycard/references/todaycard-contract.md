@@ -1,5 +1,5 @@
 <!--
-[INPUT]: 依赖 TodayCard app 源码、audio.js 声音层、functions/api/cards.js Dify 代理、assets/patterns.md 图案规则、assets/og.svg 社交预览图、todaycard-single.html 模板资产和 todaycard.app 发布约束
+[INPUT]: 依赖 TodayCard app 源码、audio.js 声音层、functions/api/cards.js Dify 代理、assets/patterns.md 图案规则、assets/og.png 社交预览图、todaycard-single.html 模板资产和 todaycard.app 发布约束
 [OUTPUT]: 对外提供 TodayCard 数据、Dify answers、视觉、交互、声音、SEO 公开元信息、单文件模板、验证和部署契约
 [POS]: skills/todaycard 的细节参考，供需要修改实现或发布流程时读取
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -95,7 +95,7 @@ Use `assets/patterns.md` as the copyable preset source.
 The public product URL is `https://todaycard.app/`.
 
 - `index.html` owns title, description, canonical, hreflang, robots meta, Open Graph, Twitter Card, manifest link, and JSON-LD.
-- `assets/og.svg` owns the 1200x630 social preview image.
+- `assets/og.png` owns the 1200x630 imagegen social preview image.
 - `robots.txt` must allow the public site and point to `https://todaycard.app/sitemap.xml`.
 - `sitemap.xml` must list only the canonical homepage until real additional public pages exist.
 - `site.webmanifest` must keep the product name, theme color, and SVG icon aligned with the head metadata.
@@ -156,6 +156,6 @@ Use `npm run build` to copy only these files into `dist/`:
 - `sitemap.xml`
 - `site.webmanifest`
 - `assets/todaycard.svg`
-- `assets/og.svg`
+- `assets/og.png`
 
 Cloudflare Pages should publish `dist`.
