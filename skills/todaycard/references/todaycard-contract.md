@@ -1,6 +1,6 @@
 <!--
-[INPUT]: 依赖 TodayCard app 源码、audio.js 声音层、functions/api/cards.js Dify 代理、assets/patterns.md 图案规则、todaycard-single.html 模板资产和 todaycard.app 发布约束
-[OUTPUT]: 对外提供 TodayCard 数据、Dify answers、视觉、交互、声音、单文件模板、验证和部署契约
+[INPUT]: 依赖 TodayCard app 源码、audio.js 声音层、functions/api/cards.js Dify 代理、assets/patterns.md 图案规则、assets/og.svg 社交预览图、todaycard-single.html 模板资产和 todaycard.app 发布约束
+[OUTPUT]: 对外提供 TodayCard 数据、Dify answers、视觉、交互、声音、SEO 公开元信息、单文件模板、验证和部署契约
 [POS]: skills/todaycard 的细节参考，供需要修改实现或发布流程时读取
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -90,14 +90,26 @@ Use `assets/patterns.md` as the copyable preset source.
 
 `data.js` `GRID_PRESETS` must stay in sync with `assets/patterns.md`.
 
+## SEO
+
+The public product URL is `https://todaycard.app/`.
+
+- `index.html` owns title, description, canonical, hreflang, robots meta, Open Graph, Twitter Card, manifest link, and JSON-LD.
+- `assets/og.svg` owns the 1200x630 social preview image.
+- `robots.txt` must allow the public site and point to `https://todaycard.app/sitemap.xml`.
+- `sitemap.xml` must list only the canonical homepage until real additional public pages exist.
+- `site.webmanifest` must keep the product name, theme color, and SVG icon aligned with the head metadata.
+- `skills/todaycard/assets/todaycard-single.html` must carry equivalent SEO metadata for the TodayCard template without external CSS or JavaScript.
+
 ## Single HTML
 
 Use `assets/todaycard-single.html` when the requested deliverable is a single copyable HTML file.
 
 - It must contain inline CSS and inline JavaScript.
 - It must not reference `styles.css`, `audio.js`, `app.js`, or any external runtime.
+- It may reference `https://todaycard.app/` canonical, manifest, and social image metadata because those are publication hints, not runtime dependencies.
 - It is a template asset, not the split-source truth.
-- When page structure, visual rules, interaction, card data, default copy, or frontend API boundaries change, update the split source first, then refresh this asset in the same change.
+- When page structure, visual rules, interaction, card data, default copy, SEO metadata, or frontend API boundaries change, update the split source first, then refresh this asset in the same change.
 - If the split source and this single HTML asset cannot express the same behavior cleanly, stop and ask before choosing a compromise.
 
 ## Interaction
@@ -140,6 +152,10 @@ Use `npm run build` to copy only these files into `dist/`:
 - `data.js`
 - `audio.js`
 - `app.js`
+- `robots.txt`
+- `sitemap.xml`
+- `site.webmanifest`
 - `assets/todaycard.svg`
+- `assets/og.svg`
 
 Cloudflare Pages should publish `dist`.

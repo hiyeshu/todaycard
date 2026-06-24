@@ -1,0 +1,17 @@
+{
+  "name": "TodayCard",
+  "short_name": "TodayCard",
+  "description": "输入一个问题，抽一组可翻开的 AI 决策卡。TodayCard 帮你把犹豫变成四个可行动选择。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/assets/todaycard.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
