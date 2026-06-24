@@ -1,6 +1,6 @@
 /*
-[INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、data.js 的 seeded palette、选项编号与图案数据、audio.js 的抽卡仪式音效、functions/api/cards.js 的 Dify 代理、浏览器语言、用户输入 decision 和当前日期
-[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定循环移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡和轻震反馈事件
+[INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、data.js 的 seeded palette、选项编号与图案数据、audio.js 的抽卡/发牌/滑卡/翻牌音效、functions/api/cards.js 的 Dify 代理、浏览器语言、用户输入 decision 和当前日期
+[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定循环移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡、切牌音效和轻震反馈事件
 [POS]: 项目行为层，承接 TodayCard.app.v1 的最小数据真相源，驱动唯一网页但不持有视觉细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -492,9 +492,11 @@ function focusCard(index, feedback = 'select') {
   if (!state.cards.length || state.isDealing) return;
   const next = wrapIndex(index, state.cards.length);
   if (next === state.focus) return;
+  const direction = relativeCardOffset(next, state.focus, state.cards.length);
   state.focus = next;
   layoutCards();
   haptic(feedback);
+  playSound('playDeckShift', { direction, feedback, index: next });
 }
 
 function moveFocus(delta, feedback = 'select') {

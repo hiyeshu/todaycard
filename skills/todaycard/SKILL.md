@@ -24,7 +24,7 @@ Treat TodayCard as a tiny decision ritual, not a form builder.
 - Reveal the answer only after click/tap on the currently focused card flips the whole card.
 - Treat side cards and current-card outside areas as selection controls, not flip controls.
 - Keep the deck circular: the previous card for `Choice A` is `Choice D`, so first/last cards do not create a one-sided coverflow edge.
-- Keep draw/deal/flip sounds in the Web Audio layer, not in card data.
+- Keep draw/deal/deck-shift/flip sounds in the Web Audio layer, not in card data.
 - Keep the implementation static unless the user explicitly asks for a backend.
 - Use `functions/api/cards.js` as the only Dify API caller; never put Dify keys in browser code.
 - For a single-file request, copy `assets/todaycard-single.html` first, then edit the copy.

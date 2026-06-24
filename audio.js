@@ -1,6 +1,6 @@
 /*
-[INPUT]: 依赖浏览器 Web Audio API 和 app.js 传入的抽卡、发牌、翻牌事件
-[OUTPUT]: 对外提供 window.TodayCardAudio.playDrawStart、playDealCard、playFlipReveal 三个 8-bit 声音入口
+[INPUT]: 依赖浏览器 Web Audio API 和 app.js 传入的抽卡、发牌、滑卡、翻牌事件
+[OUTPUT]: 对外提供 window.TodayCardAudio.playDrawStart、playDealCard、playDeckShift、playFlipReveal 四个 8-bit 声音入口
 [POS]: 项目声音层，只合成抽卡仪式音效，不拥有卡片数据、DOM 结构和视觉状态
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -114,6 +114,17 @@
     playTone(ctx, start + 0.012, pitch, 0.055, MASTER * 0.12, 'square');
   }
 
+  function playDeckShift(detail) {
+    const ctx = getContext();
+    if (!ctx) return;
+    const direction = Math.sign(Number(detail && detail.direction) || 1);
+    const start = ctx.currentTime + 0.004;
+    const from = direction > 0 ? 392 : 523.25;
+    const to = direction > 0 ? 523.25 : 392;
+    playNoise(ctx, start, 0.018, MASTER * 0.16, 2400, 4.2);
+    playSweep(ctx, start + 0.006, from, to, 0.07, MASTER * 0.1);
+  }
+
   function playFlipReveal() {
     const ctx = getContext();
     if (!ctx) return;
@@ -127,6 +138,7 @@
   window.TodayCardAudio = {
     playDrawStart,
     playDealCard,
+    playDeckShift,
     playFlipReveal
   };
 }());

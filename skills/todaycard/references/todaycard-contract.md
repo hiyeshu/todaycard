@@ -112,7 +112,7 @@ Use `assets/todaycard-single.html` when the requested deliverable is a single co
 - Dealing animation must use the `.deal-motion` wrapper; do not animate the outer `.card` coverflow transform.
 - Click/tap the focused card: flip it.
 - Click/tap a non-focused card, or the left/right area outside the focused card: move focus only, do not flip.
-- Drag beyond threshold: move focus, do not flip, and trigger a light haptic vibration when supported.
+- Drag beyond threshold: move focus, do not flip, play a light deck-shift sound, and trigger haptic vibration when supported.
 - Successful flip should trigger a light haptic vibration when supported.
 - Keyboard: ArrowLeft/ArrowRight move focus, Enter/Space flip.
 - Flip by adding `.is-flipped` to the existing DOM node; do not rerender to fake animation.
@@ -124,6 +124,7 @@ Use `assets/todaycard-single.html` when the requested deliverable is a single co
 
 - Draw start: short 8-bit charge.
 - Deal card: paper snap plus arcade tick, one per card.
+- Deck shift: short paper tick plus tiny pitch sweep.
 - Flip reveal: Hero Moment arpeggio plus sparkle tail.
 
 `app.js` may trigger sound events, but sound must not enter card data, seeds, Dify payloads, or render HTML.
