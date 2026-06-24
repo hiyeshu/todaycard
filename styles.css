@@ -1,6 +1,6 @@
 /*
 [INPUT]: 依赖 index.html 的 DOM 类名和 CSS 变量、getstampstack.vercel.app 的白底 demo 视觉、app.js 的翻牌与发牌状态类
-[OUTPUT]: 对外提供极简移动优先 TodayCard 布局、淡彩灰格背景、移动端一屏锁定的 full-bleed coverflow、圆角质感牌背、答案正面、默认正面 10x10 网格、答案页同源实色符号、两行答案位、圆框输入控制、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和点击翻牌样式
+[OUTPUT]: 对外提供极简移动优先 TodayCard 布局、淡彩灰格背景、移动端一屏锁定且与输入同轴的 full-bleed coverflow、圆角质感牌背、答案正面、默认正面 10x10 网格、答案页同源实色符号、两行答案位、圆框输入控制、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和点击翻牌样式
 [POS]: 项目视觉层，只负责形态、动效和响应式，不拥有 decision 数据、候选生成和随机图案算法
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -571,7 +571,7 @@ button.ghost {
   }
 
   .app {
-    width: min(100vw, 430px);
+    width: min(100%, 430px);
     height: 100vh;
     height: 100svh;
     min-height: 0;
@@ -587,18 +587,18 @@ button.ghost {
 
   .stage {
     align-self: stretch;
-    width: 100vw;
+    width: calc(100% + 32px);
     min-height: 0;
     display: grid;
     align-items: center;
-    margin-inline: calc(50% - 50vw);
+    margin-inline: -16px;
     margin-block: 0;
     padding-block: 16px 22px;
     overflow: hidden;
   }
 
   .deck-shell {
-    width: 100vw;
+    width: 100%;
     height: min(100%, clamp(318px, 90vw, 398px));
     min-height: 0;
     touch-action: none;

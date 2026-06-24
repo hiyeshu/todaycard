@@ -105,6 +105,8 @@ Use `assets/todaycard-single.html` when the requested deliverable is a single co
 - Pointer flow is the click/tap truth source.
 - On mobile, the page must behave as a one-screen app shell: no document scroll, no vertical scrollbar, and no rubber-band handoff from the deck to the page.
 - On mobile, the deck owns touch gestures with `touch-action: none` plus pointer-level default prevention; vertical movement inside the deck must not compete with browser scrolling.
+- On mobile, the full-bleed stage must derive from the app gutters, not nested `100vw` escape math; the deck center and input center must share the same axis in iOS Safari.
+- Coverflow position is circular: `Choice A` has `Choice D` on its left and `Choice B` on its right, so first/last cards do not create a one-sided edge.
 - Draw button starts the card ritual: play draw-start sound, request/generate answers, render new cards, then deal all cards with a fixed stagger.
 - During dealing, card drag and flip are disabled.
 - Dealing animation must use the `.deal-motion` wrapper; do not animate the outer `.card` coverflow transform.

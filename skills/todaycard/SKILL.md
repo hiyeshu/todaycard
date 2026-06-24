@@ -23,6 +23,7 @@ Treat TodayCard as a tiny decision ritual, not a form builder.
 - Show the 10x10 pattern as the card back.
 - Reveal the answer only after click/tap on the currently focused card flips the whole card.
 - Treat side cards and current-card outside areas as selection controls, not flip controls.
+- Keep the deck circular: the previous card for `Choice A` is `Choice D`, so first/last cards do not create a one-sided coverflow edge.
 - Keep draw/deal/flip sounds in the Web Audio layer, not in card data.
 - Keep the implementation static unless the user explicitly asks for a backend.
 - Use `functions/api/cards.js` as the only Dify API caller; never put Dify keys in browser code.
@@ -49,6 +50,7 @@ Read `references/todaycard-contract.md` before changing data shape, card semanti
 - Use a minimal white interface with subtle gray grid lines and the card stack as the primary screen.
 - Keep controls below the deck and sparse; put a compact text game-like draw button at the right edge of the decision input.
 - On mobile, lock the page into a safe-area aware one-screen app shell; keep the deck full-bleed, prevent document scrolling, and let the deck own touch gestures so swiping and flipping do not fight browser scroll.
+- On mobile, derive the full-bleed deck stage from the app gutters instead of nested `100vw` escape math, so the deck and input share one center line on iOS Safari.
 - Avoid explanatory in-app copy and helper buttons for actions that direct manipulation can handle.
 - Card backs may use brand, id, fixed `Choice A-D` labels, and `MM/DD` date.
 - Card fronts carry the revealed answer.

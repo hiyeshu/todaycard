@@ -1,6 +1,6 @@
 <!--
 [INPUT]: 依赖 TodayCard split source 的 index.html、styles.css、data.js、audio.js、app.js 和 assets/todaycard.svg 快照
-[OUTPUT]: 对外提供可直接复制运行、带内联 SVG favicon、淡彩灰格背景、移动端一屏锁定的 full-bleed coverflow、圆框 i18n 输入、青春可爱高饱和 candy palette、Choice A-D 选项编号、16 个具象图案、默认正面 10x10 网格、答案页同源实色符号、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效、点击选卡/翻牌边界和沉浸 Web Audio 音效的 TodayCard 单文件 HTML 模板资产
+[OUTPUT]: 对外提供可直接复制运行、带内联 SVG favicon、淡彩灰格背景、移动端一屏锁定且与输入同轴的循环 full-bleed coverflow、圆框 i18n 输入、青春可爱高饱和 candy palette、Choice A-D 选项编号、16 个具象图案、默认正面 10x10 网格、答案页同源实色符号、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效、点击选卡/翻牌边界和沉浸 Web Audio 音效的 TodayCard 单文件 HTML 模板资产
 [POS]: skills/todaycard/assets 的成品模板，给 agent 快速创建单文件决策卡页面，不替代仓库源码真相源
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 -->
@@ -14,7 +14,7 @@
   <style>
 /*
 [INPUT]: 依赖 index.html 的 DOM 类名和 CSS 变量、getstampstack.vercel.app 的白底 demo 视觉、app.js 的翻牌与发牌状态类
-[OUTPUT]: 对外提供极简移动优先 TodayCard 布局、淡彩灰格背景、移动端一屏锁定的 full-bleed coverflow、圆角质感牌背、答案正面、默认正面 10x10 网格、答案页同源实色符号、两行答案位、圆框输入控制、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和点击翻牌样式
+[OUTPUT]: 对外提供极简移动优先 TodayCard 布局、淡彩灰格背景、移动端一屏锁定且与输入同轴的 full-bleed coverflow、圆角质感牌背、答案正面、默认正面 10x10 网格、答案页同源实色符号、两行答案位、圆框输入控制、右侧状态文字游戏抽卡按钮、低对比源仓库链接、逐张发牌动效和点击翻牌样式
 [POS]: 项目视觉层，只负责形态、动效和响应式，不拥有 decision 数据、候选生成和随机图案算法
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -585,7 +585,7 @@ button.ghost {
   }
 
   .app {
-    width: min(100vw, 430px);
+    width: min(100%, 430px);
     height: 100vh;
     height: 100svh;
     min-height: 0;
@@ -601,18 +601,18 @@ button.ghost {
 
   .stage {
     align-self: stretch;
-    width: 100vw;
+    width: calc(100% + 32px);
     min-height: 0;
     display: grid;
     align-items: center;
-    margin-inline: calc(50% - 50vw);
+    margin-inline: -16px;
     margin-block: 0;
     padding-block: 16px 22px;
     overflow: hidden;
   }
 
   .deck-shell {
-    width: 100vw;
+    width: 100%;
     height: min(100%, clamp(318px, 90vw, 398px));
     min-height: 0;
     touch-action: none;
@@ -1349,7 +1349,7 @@ const GRID_PRESETS = [
   <script>
 /*
 [INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、data.js 的 seeded palette、选项编号与图案数据、audio.js 的抽卡仪式音效、functions/api/cards.js 的 Dify 代理、浏览器语言、用户输入 decision 和当前日期
-[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡和轻震反馈事件
+[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定循环移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡和轻震反馈事件
 [POS]: 项目行为层，承接 TodayCard.app.v1 的最小数据真相源，驱动唯一网页但不持有视觉细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -1493,6 +1493,20 @@ function createRng(seed) {
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function wrapIndex(index, count) {
+  if (!count) return 0;
+  return ((index % count) + count) % count;
+}
+
+function relativeCardOffset(index, focus, count) {
+  let offset = index - focus;
+  if (count < 3) return offset;
+  const half = count / 2;
+  if (offset > half) offset -= count;
+  if (offset < -half) offset += count;
+  return offset;
 }
 
 function normalizeAnswerList(values) {
@@ -1740,9 +1754,10 @@ function layoutCards() {
   const compactSpread = clamp(shellWidth * 0.34, 112, 150);
   const spread = shellWidth < 520 ? compactSpread : 250;
   const yaw = shellWidth < 520 ? -24 : -30;
+  const count = state.cards.length;
   els.deck.querySelectorAll('.card').forEach((node) => {
     const index = Number(node.dataset.index);
-    const offset = index - state.focus + dragOffset;
+    const offset = relativeCardOffset(index, state.focus, count) + dragOffset;
     const distance = Math.abs(offset);
     node.classList.toggle('is-focused', distance < 0.5);
     node.style.setProperty('--x', `${offset * spread}px`);
@@ -1824,7 +1839,7 @@ function renderLocalDeck() {
 
 function focusCard(index, feedback = 'select') {
   if (!state.cards.length || state.isDealing) return;
-  const next = clamp(index, 0, state.cards.length - 1);
+  const next = wrapIndex(index, state.cards.length);
   if (next === state.focus) return;
   state.focus = next;
   layoutCards();

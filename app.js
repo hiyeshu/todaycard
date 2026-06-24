@@ -1,6 +1,6 @@
 /*
 [INPUT]: 依赖 index.html 的控件节点、styles.css 的状态类、data.js 的 seeded palette、选项编号与图案数据、audio.js 的抽卡仪式音效、functions/api/cards.js 的 Dify 代理、浏览器语言、用户输入 decision 和当前日期
-[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡和轻震反馈事件
+[OUTPUT]: 对外提供 i18n 文案绑定、单句决策输入、Dify/本地候选选项、带品牌/选项编号/月日元信息的 TodayCard 数据、默认正面 10x10 网格、答案页同源实色符号、一屏锁定循环移动牌堆、逐张发牌动效、点击当前卡翻牌、点击非当前区域选卡和轻震反馈事件
 [POS]: 项目行为层，承接 TodayCard.app.v1 的最小数据真相源，驱动唯一网页但不持有视觉细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 */
@@ -144,6 +144,20 @@ function createRng(seed) {
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function wrapIndex(index, count) {
+  if (!count) return 0;
+  return ((index % count) + count) % count;
+}
+
+function relativeCardOffset(index, focus, count) {
+  let offset = index - focus;
+  if (count < 3) return offset;
+  const half = count / 2;
+  if (offset > half) offset -= count;
+  if (offset < -half) offset += count;
+  return offset;
 }
 
 function normalizeAnswerList(values) {
@@ -391,9 +405,10 @@ function layoutCards() {
   const compactSpread = clamp(shellWidth * 0.34, 112, 150);
   const spread = shellWidth < 520 ? compactSpread : 250;
   const yaw = shellWidth < 520 ? -24 : -30;
+  const count = state.cards.length;
   els.deck.querySelectorAll('.card').forEach((node) => {
     const index = Number(node.dataset.index);
-    const offset = index - state.focus + dragOffset;
+    const offset = relativeCardOffset(index, state.focus, count) + dragOffset;
     const distance = Math.abs(offset);
     node.classList.toggle('is-focused', distance < 0.5);
     node.style.setProperty('--x', `${offset * spread}px`);
@@ -475,7 +490,7 @@ function renderLocalDeck() {
 
 function focusCard(index, feedback = 'select') {
   if (!state.cards.length || state.isDealing) return;
-  const next = clamp(index, 0, state.cards.length - 1);
+  const next = wrapIndex(index, state.cards.length);
   if (next === state.focus) return;
   state.focus = next;
   layoutCards();
