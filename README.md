@@ -5,6 +5,10 @@
 <h1 align="center">TodayCard</h1>
 
 <p align="center">
+  <strong>中文</strong> · <a href="./README.en.md">English</a>
+</p>
+
+<p align="center">
   <img alt="TodayCard product preview" src="./assets/og.png">
 </p>
 
