@@ -86,7 +86,8 @@ const localeKey = resolveLocale();
 const copy = MESSAGES[localeKey];
 
 function resolveLocale() {
-  const language = `${document.documentElement.lang || navigator.language || ''}`.toLowerCase();
+  const language = `${(navigator.languages && navigator.languages[0]) || navigator.language || ''}`.toLowerCase();
+  if (!language) return 'zh';
   return language.startsWith('zh') ? 'zh' : 'en';
 }
 
